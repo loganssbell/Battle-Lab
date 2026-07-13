@@ -2071,15 +2071,6 @@
       document.getElementById('import-file-input').click();
     }
 
-    function refreshActiveBattleView() {
-      if (window.currentBattleId) {
-        const match = battlesGlobal.find(b => b.id === window.currentBattleId);
-        if (match) {
-          renderBattleReport(window.currentBattleId);
-        }
-      }
-    }
-
     function toggleAdvancedOptions() {
       const panel = document.getElementById('advanced-options-panel');
       const arrow = document.getElementById('advanced-options-arrow');
@@ -5076,6 +5067,15 @@ Run a complete arbitration cycle. Decide if this dispute changes the outcome.`;
       }
     }
 
+    function refreshActiveBattleView() {
+      if (window.currentBattleId) {
+        const match = battlesGlobal.find(b => b.id === window.currentBattleId);
+        if (match) {
+          renderBattleReport(window.currentBattleId);
+        }
+      }
+    }
+
     // Exposing globally needed variables to classic inline script triggers
     window.cleanBaseName = cleanBaseName;
     window.cleanVariantName = cleanVariantName;
@@ -5083,16 +5083,9 @@ Run a complete arbitration cycle. Decide if this dispute changes the outcome.`;
     window.sanitizeFighterUrl = sanitizeFighterUrl;
     window.compressBase64Image = compressBase64Image;
     window.setFighterImage = setFighterImage;
-    window.startApp = startApp;
-    window.fallbackToLocalMode = fallbackToLocalMode;
-    window.checkAndPreloadRoster = checkAndPreloadRoster;
-    window.setupDatabaseListeners = setupDatabaseListeners;
-    window.loadLocalData = loadLocalData;
     window.findBestCharacterMatch = findBestCharacterMatch;
     window.populateFranchiseDropdowns = populateFranchiseDropdowns;
-    window.exportData = exportData;
     window.triggerImport = triggerImport;
-    window.handleImportFileSelect = handleImportFileSelect;
     window.initiateSimulation = initiateSimulation;
     window.updateDatalists = updateDatalists;
     window.updateBattlesUI = updateBattlesUI;
@@ -5116,7 +5109,6 @@ Run a complete arbitration cycle. Decide if this dispute changes the outcome.`;
     window.escapeHtml = escapeHtml;
     window.urlToInlineData = urlToInlineData;
     window.triggerClearDatabase = triggerClearDatabase;
-    window.executeDatabasePurge = executeDatabasePurge;
     window.parseNameAndVariant = parseNameAndVariant;
     window.refreshActiveBattleView = refreshActiveBattleView;
     window.resetFightReportUI = resetFightReportUI;
