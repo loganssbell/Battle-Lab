@@ -3786,7 +3786,6 @@ You must return a valid JSON object matching this structure:
       }
 
       try {
-        const apiKey = "";
         if (imageParts.length > 0) {
           const parts = [{ text: referencePrompt }];
           imageParts.forEach(img => {
@@ -4622,7 +4621,6 @@ Run a complete arbitration cycle. Decide if this dispute changes the outcome.`;
         };
 
         const response = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`, {
-          method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
@@ -5096,7 +5094,6 @@ Run a complete arbitration cycle. Decide if this dispute changes the outcome.`;
     window.triggerImport = triggerImport;
     window.handleImportFileSelect = handleImportFileSelect;
     window.initiateSimulation = initiateSimulation;
-    window.generateBattleScene = generateBattleScene;
     window.updateDatalists = updateDatalists;
     window.updateBattlesUI = updateBattlesUI;
     window.displayMatchDetails = displayMatchDetails;
@@ -5123,6 +5120,38 @@ Run a complete arbitration cycle. Decide if this dispute changes the outcome.`;
     window.parseNameAndVariant = parseNameAndVariant;
     window.refreshActiveBattleView = refreshActiveBattleView;
     window.resetFightReportUI = resetFightReportUI;
+    window.generateBattleScene = generateBattleScene;
+
+    // Roster script functions
+    window.updateRosterUI = updateRosterUI;
+    window.filterRoster = filterRoster;
+    window.openRosterExplorer = openRosterExplorer;
+    window.closeRosterExplorer = closeRosterExplorer;
+    window.changeCharLimit = changeCharLimit;
+    window.changeCharPage = changeCharPage;
+    window.applyRosterExplorerFilters = applyRosterExplorerFilters;
+    window.renderRosterExplorerPagination = renderRosterExplorerPagination;
+    window.renderRosterExplorerGrid = renderRosterExplorerGrid;
+    window.clearRosterFilters = clearRosterFilters;
+    window.triggerAddCharacterHub = triggerAddCharacterHub;
+    window.closeAddCharacterHub = closeAddCharacterHub;
+    window.selectAddRoute = selectAddRoute;
+    window.executeRandomPopularScout = executeRandomPopularScout;
+    window.closeAiScoutModal = closeAiScoutModal;
+    window.executeAiRosterScout = executeAiRosterScout;
+    window.inspectCharacter = inspectCharacter;
+    window.changeDossierVariant = changeDossierVariant;
+    window.calculateBattleStats = calculateBattleStats;
+    window.renderVariantView = renderVariantView;
+    window.refreshInspectedCharacterView = refreshInspectedCharacterView;
+    window.closeDossier = closeDossier;
+    window.setDossierMode = setDossierMode;
+    window.toggleDossierEdit = toggleDossierEdit;
+    window.saveDossierChanges = saveDossierChanges;
+    window.triggerDeleteCharacter = triggerDeleteCharacter;
+    window.updateCharacterImage = updateCharacterImage;
+    window.generateAIPortrait = generateAIPortrait;
+    window.triggerAIPortraitGeneration = triggerAIPortraitGeneration;
     
     // Popup window explorer exposure    
     window.openMatchesExplorer = openMatchesExplorer;
@@ -5135,9 +5164,6 @@ Run a complete arbitration cycle. Decide if this dispute changes the outcome.`;
     window.setFallbackSplitScene = setFallbackSplitScene;
 
     // Pagination Exposure
-    window.changeMatchLimit = changeMatchLimit;
-    window.changeMatchPage = changeMatchPage;
-    window.renderMatchExplorerPagination = renderMatchExplorerPagination;
     
     // Tournament Modes Exposure
     window.setSimulationMode = setSimulationMode;
@@ -5160,6 +5186,10 @@ Run a complete arbitration cycle. Decide if this dispute changes the outcome.`;
     window.changeTournamentPage = changeTournamentPage;
     window.applyTournamentExplorerFilters = applyTournamentExplorerFilters;
     window.renderTournamentExplorerGrid = renderTournamentExplorerGrid;
+    window.renderTournamentExplorerPagination = renderTournamentExplorerPagination;
+    window.changeMatchLimit = changeMatchLimit;
+    window.changeMatchPage = changeMatchPage;
+    window.renderMatchExplorerPagination = renderMatchExplorerPagination;
 
     function clearMatchFilters() {
       document.getElementById('explorer-match-search').value = '';

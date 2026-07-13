@@ -330,7 +330,6 @@ async function executeRandomPopularScout() {
     );
 
     try {
-      const apiKey = "";
       const systemPrompt = `You are a multiverse character archiver. Choose a franchise from the provided list (or select a highly similar popular gaming, anime, or comic universe not listed).
 Then, choose an iconic, highly capable, and combat-relevant character from that franchise who is NOT already present in our roster.
 Gather comprehensive background details and output them in valid JSON.
@@ -442,7 +441,6 @@ async function executeAiRosterScout() {
     openModal("Multiverse Roster Scout active...", `AI is researching and building profile files for ${scoutName}...`, "fa-solid fa-satellite-dish animate-pulse text-purple-400");
 
     try {
-      const apiKey = "";
       const systemPrompt = `You are a multiverse character archiver. Gather comprehensive background details on the specified character variant and output them in valid JSON. You MUST use google search to get accurate real-world data and find a working, direct, hotlinkable image URL for this character's portrait.
 
 CRITICAL PORTRAIT URL RULES:
@@ -868,6 +866,31 @@ async function updateCharacterImage(charId) {
     } catch (err) {
       openModal("Update Failed", "Could not save image.", "fa-solid fa-exclamation-triangle");
     }
+}
+
+async function generateAIPortrait(charName, publisher, alignment) {
+  const prompt = `Stylized highly detailed comic book headshot profile portrait artwork of the superhero character ${charName} from ${publisher || 'multiverse lore'}. Highly detailed, professional graphic novel art style, vibrant colors, ${alignment === 'Evil' ? 'sinister dramatic lighting' : 'heroic epic lighting'}. Portrait framing.`;
+  
+  const payload = {
+    instances: { prompt: prompt },
+    parameters: { sampleCount: 1 }
+  };
+
+  try {
+    const response = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const result = await response.json();
+    
+    if (result.predictions && result.predictions.length > 0 && result.predictions[0].bytesBase64Encoded) {
+      return `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
+    }
+  } catch (err) {
+    console.error("Imagen portrait build error:", err);
+  }
+  return null;
 }
 
 async function triggerAIPortraitGeneration() {
