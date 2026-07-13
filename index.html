@@ -21,6 +21,13 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
+  <!-- 
+    GEMINI API KEY CONFIGURATION
+    Replace "YOUR_API_KEY" with your actual Google AI Studio Gemini API key.
+    You can get a key from: https://aistudio.google.com/app/apikey
+  -->
+  <script>window.__api_key = "AQ.Ab8RN6I2pC_c39Rjke6B1QqKcQB3I57SRgR775QWqJOVL9X8zw";</script>
+
   <style>
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
@@ -1824,7 +1831,6 @@
     let battlesGlobal = [];
 
     // Safely parse the injected environment configuration variables
-    const apiKey = typeof __api_key !== 'undefined' ? __api_key : (window.__api_key || '');
     try {
       const rawConfig = typeof __firebase_config !== 'undefined' ? __firebase_config : (window.__firebase_config || null);
       if (rawConfig) {
@@ -2723,7 +2729,7 @@ Output valid JSON matching this schema:
         };
 
         const response = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`, {
-          method: 'POST',
+          method: 'POST', // This should be apiKey, not a separate variable
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
@@ -3791,7 +3797,7 @@ You must return a valid JSON object matching this structure:
             }
           };
 
-          const response = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-image-preview:generateContent?key=${apiKey}`, {
+        const response = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-image-preview:generateContent?key=${window.__api_key}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
@@ -3813,7 +3819,7 @@ You must return a valid JSON object matching this structure:
             instances: { prompt: referencePrompt },
             parameters: { sampleCount: 1 }
           };
-          const response = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`, {
+          const response = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${window.__api_key}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
@@ -4612,7 +4618,7 @@ Run a complete arbitration cycle. Decide if this dispute changes the outcome.`;
         };
 
         const response = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`, {
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json' }, // This should be window.__api_key
           body: JSON.stringify(payload)
         });
 
