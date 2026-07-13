@@ -14,17 +14,6 @@ let auth = null;
 let db = null;
 let currentUser = null;
 
-// Safely parse the injected environment configuration variables
-const apiKey = typeof __api_key !== 'undefined' ? __api_key : (window.__api_key || '');
-try {
-  const rawConfig = typeof __firebase_config !== 'undefined' ? __firebase_config : (window.__firebase_config || null);
-  if (rawConfig) {
-    firebaseConfig = typeof rawConfig === 'string' ? JSON.parse(rawConfig) : rawConfig;
-  }
-} catch (e) {
-  console.error("Error parsing injected __firebase_config:", e);
-}
-
 // Persistent local database fallback engine
 const localDbEngine = {
   getCharacters() {
