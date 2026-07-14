@@ -1464,6 +1464,9 @@
     window.tournamentAutoRunning = false; 
     window.communityFeedMode = 'matches'; 
     
+    // API Key management (check environment, local storage, or fallback)
+    window.apiKey = window.apiKey || localStorage.getItem('gemini_api_key') || '';
+
     let tournamentsGlobal = []; 
     let charactersGlobal = [];
     let battlesGlobal = [];
@@ -1642,8 +1645,14 @@
       },
       saveBattle(battle) {
         const battles = this.getBattles();
-        const payload = { id: 'local-' + Date.now(), ...battle };
-        battles.push(payload);
+        const id = battle.id || 'local-' + Date.now();
+        const payload = { id, ...battle };
+        const index = battles.findIndex(b => b.id === id);
+        if (index !== -1) {
+          battles[index] = payload;
+        } else {
+          battles.push(payload);
+        }
         localStorage.setItem('battle_lab_battles', JSON.stringify(battles));
         return payload;
       },
@@ -1828,6 +1837,22 @@
       const options = chars.map(c => `<option value="${escapeHtml(c.name)}">`).join('');
       listA.innerHTML = options;
       listB.innerHTML = options;
+    }
+
+    function populateFranchiseDropdowns() {
+      const charFranchiseSelect = document.getElementById('explorer-char-franchise');
+      const matchFranchiseSelect = document.getElementById('explorer-match-franchise');
+      
+      if (!charFranchiseSelect || !matchFranchiseSelect) return;
+      
+      // Get unique franchises
+      const franchises = Array.from(new Set(charactersGlobal.map(c => c.franchise || c.mediaSource || '').filter(Boolean))).sort();
+      
+      const optionsHtml = '<option value="All">All Franchises</option>' + 
+        franchises.map(f => `<option value="${escapeHtml(f)}">${escapeHtml(f)}</option>`).join('');
+        
+      charFranchiseSelect.innerHTML = optionsHtml;
+      matchFranchiseSelect.innerHTML = optionsHtml;
     }
 
     // Sidebar registry rendering
@@ -3115,6 +3140,934 @@ Output valid JSON only matching this schema:
     window.toggleFilters = function(id) {
       const el = document.getElementById(id);
       el.classList.toggle('mobile-collapsed-default');
+    };
+
+    window.setSimulationMode = function(mode) {
+      window.simulationMode = mode;
+      
+      const singlePanel = document.getElementById('single-play-panel');
+      const tournamentPanel = document.getElementById('tournament-play-panel');
+      const singleBtn = document.getElementById('mode-single-btn');
+      const tournamentBtn = document.getElementById('mode-tournament-btn');
+      const simulateBtn = document.getElementById('simulate-btn');
+      const launchTournamentBtn = document.getElementById('tournament-btn');
+      
+      if (mode === 'tournament') {
+        singlePanel.classList.add('hidden');
+        tournamentPanel.classList.remove('hidden');
+        simulateBtn.classList.add('hidden');
+        launchTournamentBtn.classList.remove('hidden');
+        
+        singleBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all text-slate-400 hover:text-slate-200";
+        tournamentBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-purple-600 text-white shadow-md shadow-purple-900/30";
+      } else {
+        singlePanel.classList.remove('hidden');
+        tournamentPanel.classList.add('hidden');
+        simulateBtn.classList.remove('hidden');
+        launchTournamentBtn.classList.add('hidden');
+        
+        tournamentBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all text-slate-400 hover:text-slate-200";
+        singleBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-purple-600 text-white shadow-md shadow-purple-900/30";
+      }
+    };
+
+    window.toggleAdvancedOptions = function() {
+      const panel = document.getElementById('advanced-options-panel');
+      const arrow = document.getElementById('advanced-options-arrow');
+      if (panel.classList.contains('hidden')) {
+        panel.classList.remove('hidden');
+        arrow.style.transform = 'rotate(180deg)';
+      } else {
+        panel.classList.add('hidden');
+        arrow.style.transform = 'rotate(0deg)';
+      }
+    };
+
+    window.saveOptionsState = function() {
+      const state = {
+        bypassImage: document.getElementById('bypass-image-gen-toggle').checked,
+        customBattleground: document.getElementById('custom-battleground').value,
+        customRules: document.getElementById('custom-rules').value,
+        customHandicaps: document.getElementById('custom-handicaps').value
+      };
+      localStorage.setItem('battle_lab_options_state', JSON.stringify(state));
+    };
+
+    window.loadOptionsState = function() {
+      const stored = localStorage.getItem('battle_lab_options_state');
+      if (!stored) return;
+      try {
+        const state = JSON.parse(stored);
+        document.getElementById('bypass-image-gen-toggle').checked = !!state.bypassImage;
+        document.getElementById('custom-battleground').value = state.customBattleground || '';
+        document.getElementById('custom-rules').value = state.customRules || '';
+        document.getElementById('custom-handicaps').value = state.customHandicaps || '';
+      } catch (e) {
+        console.error("Failed loading options state", e);
+      }
+    };
+
+    window.renderTournamentDraftRosterBoard = function() {
+      const grid = document.getElementById('tournament-draft-grid');
+      if (!grid) return;
+      
+      if (charactersGlobal.length === 0) {
+        grid.innerHTML = '<div class="col-span-full py-6 text-center text-xs text-slate-500">Create characters first!</div>';
+        return;
+      }
+
+      grid.innerHTML = charactersGlobal.map(c => {
+        const isSelected = window.tournamentDraftSelectedIds.includes(c.id);
+        return `
+          <div onclick="toggleTournamentDraftParticipant('${c.id}')" id="draft-item-${c.id}" class="p-2 bg-slate-950 border ${isSelected ? 'border-amber-500 bg-amber-500/5' : 'border-slate-800'} hover:border-slate-700 rounded-lg cursor-pointer transition flex items-center justify-between">
+            <div class="flex items-center space-x-1.5 overflow-hidden">
+              <div class="w-6 h-6 bg-slate-900 rounded border border-slate-800 overflow-hidden shrink-0">
+                <img src="${c.imageUrl}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/40x40/0f172a/94a3b8?text=${encodeURIComponent(c.name.substring(0,1))}'">
+              </div>
+              <div class="overflow-hidden">
+                <span class="text-[10px] font-bold text-slate-200 block truncate leading-tight">${escapeHtml(c.name)}</span>
+                <span class="text-[8px] text-slate-500 block truncate leading-none">${escapeHtml(c.variant || 'Default')}</span>
+              </div>
+            </div>
+            <div class="w-3.5 h-3.5 rounded border ${isSelected ? 'border-amber-500 bg-amber-500' : 'border-slate-700'} flex items-center justify-center shrink-0">
+              ${isSelected ? '<i class="fa-solid fa-check text-[8px] text-slate-950 font-bold"></i>' : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    };
+
+    window.toggleTournamentDraftParticipant = function(charId) {
+      const limit = parseInt(document.getElementById('tournament-size').value) || 8;
+      const index = window.tournamentDraftSelectedIds.indexOf(charId);
+      
+      if (index !== -1) {
+        window.tournamentDraftSelectedIds.splice(index, 1);
+      } else {
+        if (window.tournamentDraftSelectedIds.length >= limit) {
+          openModal("Draft Cap Reached", `You can only select up to ${limit} combatants for this bracket tree size.`, "fa-solid fa-triangle-exclamation");
+          return;
+        }
+        window.tournamentDraftSelectedIds.push(charId);
+      }
+      
+      updateTournamentDraftCounterLabel();
+      renderTournamentDraftRosterBoard();
+    };
+
+    window.adjustTournamentSizeLimit = function() {
+      const limit = parseInt(document.getElementById('tournament-size').value) || 8;
+      if (window.tournamentDraftSelectedIds.length > limit) {
+        window.tournamentDraftSelectedIds = window.tournamentDraftSelectedIds.slice(0, limit);
+      }
+      updateTournamentDraftCounterLabel();
+      renderTournamentDraftRosterBoard();
+    };
+
+    function updateTournamentDraftCounterLabel() {
+      const limit = parseInt(document.getElementById('tournament-size').value) || 8;
+      const label = document.getElementById('tournament-draft-count');
+      if (label) {
+        label.innerText = `${window.tournamentDraftSelectedIds.length} / ${limit}`;
+      }
+    }
+
+    window.autofillTournamentDraft = function() {
+      const limit = parseInt(document.getElementById('tournament-size').value) || 8;
+      window.tournamentDraftSelectedIds = [];
+      
+      const shuffled = [...charactersGlobal].sort(() => 0.5 - Math.random());
+      const selected = shuffled.slice(0, limit);
+      selected.forEach(c => window.tournamentDraftSelectedIds.push(c.id));
+      
+      updateTournamentDraftCounterLabel();
+      renderTournamentDraftRosterBoard();
+    };
+
+    window.clearTournamentDraft = function() {
+      window.tournamentDraftSelectedIds = [];
+      updateTournamentDraftCounterLabel();
+      renderTournamentDraftRosterBoard();
+    };
+
+    window.filterTournamentDraftRoster = function() {
+      const query = document.getElementById('tournament-draft-search').value.toLowerCase().trim();
+      const grid = document.getElementById('tournament-draft-grid');
+      if (!grid) return;
+      
+      const filtered = charactersGlobal.filter(c => 
+        c.name.toLowerCase().includes(query) || 
+        (c.franchise && c.franchise.toLowerCase().includes(query))
+      );
+      
+      if (filtered.length === 0) {
+        grid.innerHTML = '<div class="col-span-full py-6 text-center text-xs text-slate-500">No matching roster profiles.</div>';
+        return;
+      }
+
+      grid.innerHTML = filtered.map(c => {
+        const isSelected = window.tournamentDraftSelectedIds.includes(c.id);
+        return `
+          <div onclick="toggleTournamentDraftParticipant('${c.id}')" id="draft-item-${c.id}" class="p-2 bg-slate-950 border ${isSelected ? 'border-amber-500 bg-amber-500/5' : 'border-slate-800'} hover:border-slate-700 rounded-lg cursor-pointer transition flex items-center justify-between">
+            <div class="flex items-center space-x-1.5 overflow-hidden">
+              <div class="w-6 h-6 bg-slate-900 rounded border border-slate-800 overflow-hidden shrink-0">
+                <img src="${c.imageUrl}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/40x40/0f172a/94a3b8?text=${encodeURIComponent(c.name.substring(0,1))}'">
+              </div>
+              <div class="overflow-hidden">
+                <span class="text-[10px] font-bold text-slate-200 block truncate leading-tight">${escapeHtml(c.name)}</span>
+                <span class="text-[8px] text-slate-500 block truncate leading-none">${escapeHtml(c.variant || 'Default')}</span>
+              </div>
+            </div>
+            <div class="w-3.5 h-3.5 rounded border ${isSelected ? 'border-amber-500 bg-amber-500' : 'border-slate-700'} flex items-center justify-center shrink-0">
+              ${isSelected ? '<i class="fa-solid fa-check text-[8px] text-slate-950 font-bold"></i>' : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    };
+
+    function generateMockBattleReport(fA, fB, customBg, customRules, customHandicaps) {
+      // Collect power tags
+      const pA = fA.powers && fA.powers.length > 0 ? fA.powers : ["Physical Prowess", "Martial Training"];
+      const pB = fB.powers && fB.powers.length > 0 ? fB.powers : ["Dynamic Strategy", "Energy Projection"];
+      
+      const winnerPool = [fA, fB];
+      const winIdx = Math.random() < 0.5 ? 0 : 1;
+      const winner = winnerPool[winIdx];
+      const loser = winnerPool[1 - winIdx];
+      const probability = Math.floor(Math.random() * 20) + 55; // 55% - 75%
+      
+      const pAWinner = winner.id === fA.id;
+      const winnerPowers = pAWinner ? pA : pB;
+      const loserPowers = pAWinner ? pB : pA;
+      
+      const phase1 = `Under the dynamic atmosphere of ${customBg || "a desolate multiversal arena"}, ${fA.name} and ${fB.name} square off. ${fA.name} opens up strong with an explosive demonstration of ${pA[0]}. ${fB.name} stays perfectly composed, absorbing the impact with defensive positioning and countering utilizing ${pB[0]}. ${customRules ? `Under the active combat conditions of: "${customRules}", both fighters tread with absolute care.` : ""}`;
+      
+      const phase2 = `The battle intensifies and both fighters evolve. ${loser.name} manages to find a critical blindspot, deploying their signature ${loserPowers[0]} to push ${winner.name} back to the edge of the field. However, ${winner.name} draws on their deep lore attribute matrix to stabilize, deploying ${winnerPowers[1] || winnerPowers[0]} to reverse the momentum completely. ${customHandicaps ? `The active handicaps ("${customHandicaps}") begin heavily playing into the physical pacing.` : ""}`;
+      
+      const phase3 = `In the decisive turning point, ${loser.name} charges with a desperate all-out assault utilizing ${loserPowers[1] || loserPowers[0]}. Sensing the strike, ${winner.name} executes a flawless tactical intercept. Channeling the ultimate power of ${winnerPowers[winnerPowers.length - 1]}, ${winner.name} shatters the counter, landing a clear battleground climax impact that leaves ${loser.name} unable to continue.`;
+      
+      const verdict = `Through meticulous physical and tactical cross-referencing, ${winner.name} claims victory in ${probability}% of scenarios. While ${loser.name}'s mastery of ${loserPowers[0]} posed an intense threat, ${winner.name}'s ultimate scalability via ${winnerPowers[0]} and battlefield dominance proved insurmountable in the final trade of blows.`;
+      
+      return {
+        predictedWinner: winner.name,
+        winProbability: `${probability}%`,
+        phase1Setup: phase1,
+        phase2MidGame: phase2,
+        phase3Climax: phase3,
+        verdictSummary: verdict
+      };
+    }
+
+    window.initiateSimulation = async function() {
+      const nameA = document.getElementById('fighter-a-input').value.trim();
+      const nameB = document.getElementById('fighter-b-input').value.trim();
+      
+      if (!nameA || !nameB) {
+        openModal("Incomplete Fields", "Please configure the names of both combatants to initiate the clash.", "fa-solid fa-user-ninja text-purple-400");
+        return;
+      }
+
+      // Hide results, show loading
+      document.getElementById('results-card').classList.remove('hidden');
+      document.getElementById('loading-overlay').classList.remove('hidden');
+      document.getElementById('results-content').classList.add('hidden');
+      document.getElementById('results-card').scrollIntoView({ behavior: 'smooth' });
+
+      // Resolve character records (or register them on the fly if needed)
+      let fA = findBestCharacterMatch(nameA);
+      let fB = findBestCharacterMatch(nameB);
+
+      if (!fA) {
+        fA = {
+          name: nameA,
+          baseName: cleanBaseName(nameA),
+          variant: cleanVariantName(document.getElementById('fighter-a-variant').value),
+          powers: ["Combat Instincts", "Dynamic Prowess"],
+          alignment: "Neutral",
+          bio: "Unregistered multiversal fighter scouted live on battlefield.",
+          imageUrl: ""
+        };
+        fA = localDbEngine.saveCharacter(fA);
+      }
+      if (!fB) {
+        fB = {
+          name: nameB,
+          baseName: cleanBaseName(nameB),
+          variant: cleanVariantName(document.getElementById('fighter-b-variant').value),
+          powers: ["Survival Instincts", "Tactical Intellect"],
+          alignment: "Neutral",
+          bio: "Unregistered multiversal fighter scouted live on battlefield.",
+          imageUrl: ""
+        };
+        fB = localDbEngine.saveCharacter(fB);
+      }
+
+      const customBg = document.getElementById('custom-battleground').value.trim();
+      const customRules = document.getElementById('custom-rules').value.trim();
+      const customHandicaps = document.getElementById('custom-handicaps').value.trim();
+
+      let reportData;
+      let usedAI = false;
+
+      if (window.apiKey) {
+        try {
+          const prompt = `Research these combatants and write a canonical, highly realistic single-duel simulation report:
+Fighter A: ${fA.name} (${fA.variant}) - Powers: ${fA.powers.join(', ')}. Bio: ${fA.bio}.
+Fighter B: ${fB.name} (${fB.variant}) - Powers: ${fB.powers.join(', ')}. Bio: ${fB.bio}.
+
+Battle Conditions:
+Battleground: ${customBg || "Dimensional Laboratory Arena"}
+Combat Rules: ${customRules || "Standard rules apply"}
+Handicaps: ${customHandicaps || "None applied"}
+
+Output ONLY valid JSON matching this schema:
+{
+  "predictedWinner": "Standardized name of the predicted winner",
+  "winProbability": "Probability percentage (e.g., '65%')",
+  "phase1Setup": "Describe Phase 1 of the battle setup and initial trades",
+  "phase2MidGame": "Describe Phase 2 where powers evolve and the tides turn",
+  "phase3Climax": "Describe Phase 3 climax and final trade of blows",
+  "verdictSummary": "Explanatory verdict from a Lore Master perspective detailing the core reasons why"
+}`;
+
+          const payload = {
+            contents: [{ parts: [{ text: prompt }] }],
+            systemInstruction: { parts: [{ text: "You are the ultimate Lore Master. Cross-reference abilities, biometrics, and history. Return valid JSON only." }] },
+            generationConfig: { responseMimeType: "application/json" }
+          };
+
+          const response = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          const data = await response.json();
+          const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (text) {
+            reportData = JSON.parse(text);
+            usedAI = true;
+          }
+        } catch (err) {
+          console.warn("AI generation failed or rate-limited. Falling back to local offline mock engine.", err);
+        }
+      }
+
+      // Fallback if AI was bypassed, errored, or rate-limited
+      if (!reportData) {
+        reportData = generateMockBattleReport(fA, fB, customBg, customRules, customHandicaps);
+      }
+
+      // Build payload to save in local matches history
+      const battlePayload = {
+        fighterAId: fA.id,
+        fighterAName: `${fA.name} (${fA.variant})`,
+        fighterBId: fB.id,
+        fighterBName: `${fB.name} (${fB.variant})`,
+        predictedWinner: reportData.predictedWinner,
+        winProbability: reportData.winProbability,
+        phase1Setup: reportData.phase1Setup,
+        phase2MidGame: reportData.phase2MidGame,
+        phase3Climax: reportData.phase3Climax,
+        verdictSummary: reportData.verdictSummary,
+        customBattleground: customBg || null,
+        customRules: customRules || null,
+        customHandicaps: customHandicaps || null,
+        timestamp: Date.now(),
+        battleSceneImgUrl: null
+      };
+
+      const savedBattle = localDbEngine.saveBattle(battlePayload);
+      loadLocalData();
+
+      // Trigger scene illustration generation (Imagen AI or fallback split cards)
+      const bypassImage = document.getElementById('bypass-image-gen-toggle').checked;
+      let sceneImgUrl = "fallback-split";
+
+      if (!bypassImage && window.apiKey) {
+        try {
+          const winnerIsA = reportData.predictedWinner.toLowerCase().includes(fA.name.toLowerCase());
+          const winName = winnerIsA ? fA.name : fB.name;
+          const winVar = winnerIsA ? fA.variant : fB.variant;
+          const losName = winnerIsA ? fB.name : fA.name;
+          const losVar = winnerIsA ? fB.variant : fA.variant;
+          
+          sceneImgUrl = await generateBattleScene(winName, losName, winVar, losVar);
+        } catch (e) {
+          console.warn("Scene image generation skipped", e);
+        }
+      }
+
+      savedBattle.battleSceneImgUrl = sceneImgUrl;
+      localDbEngine.saveBattle(savedBattle);
+      loadLocalData();
+      viewHistoricalMatch(savedBattle.id);
+    };
+
+    window.initiateTournament = function() {
+      const limit = parseInt(document.getElementById('tournament-size').value) || 8;
+      const title = document.getElementById('tournament-title').value.trim() || "Multiverse Clash of Champions";
+      const desc = document.getElementById('tournament-desc').value.trim() || "Standard elimination rules apply.";
+      
+      if (window.tournamentDraftSelectedIds.length !== limit) {
+        openModal("Incomplete Draft", `Please draft exactly ${limit} combatants before launching. Currently drafted: ${window.tournamentDraftSelectedIds.length}`, "fa-solid fa-trophy text-amber-400");
+        return;
+      }
+
+      // Configure seedings
+      const selectedChars = window.tournamentDraftSelectedIds.map(id => charactersGlobal.find(c => c.id === id)).filter(Boolean);
+      const seedingMethod = document.getElementById('tournament-seeding').value;
+      
+      if (seedingMethod === 'random') {
+        selectedChars.sort(() => 0.5 - Math.random());
+      }
+
+      // Construct bracket nodes array representation
+      const matchesQueue = [];
+      for (let i = 0; i < limit; i += 2) {
+        matchesQueue.push({
+          id: `t-round1-m${i/2}`,
+          fighterA: selectedChars[i],
+          fighterB: selectedChars[i+1],
+          winner: null,
+          winProbability: null,
+          round: 1
+        });
+      }
+
+      window.activeTournament = {
+        id: 't-' + Date.now(),
+        title,
+        desc,
+        limit,
+        participants: selectedChars.map(c => c.id),
+        currentRound: 1,
+        matches: matchesQueue,
+        history: [],
+        winner: null
+      };
+
+      document.getElementById('tournament-active-card').classList.remove('hidden');
+      document.getElementById('active-tournament-title').innerText = title.toUpperCase();
+      document.getElementById('active-tournament-desc').innerText = desc;
+      
+      renderActiveTournamentBracketGrid();
+      updateTournamentQueueDisplay();
+      
+      document.getElementById('tournament-active-card').scrollIntoView({ behavior: 'smooth' });
+    };
+
+    function renderActiveTournamentBracketGrid() {
+      const grid = document.getElementById('bracket-hierarchy-grid');
+      if (!grid || !window.activeTournament) return;
+
+      const t = window.activeTournament;
+      const size = t.limit;
+      let roundsCount = Math.log2(size);
+      
+      let columnsHtml = '';
+      
+      // Let's build nodes for each round
+      for (let r = 1; r <= roundsCount; r++) {
+        const matchesInRound = size / Math.pow(2, r);
+        let columnNodeHtml = `<div class="flex flex-col justify-around h-full gap-4 min-w-[180px]">`;
+        columnNodeHtml += `<div class="text-[9px] uppercase tracking-widest text-slate-500 font-extrabold text-center border-b border-slate-800 pb-1">Round ${r}</div>`;
+        
+        for (let m = 0; m < matchesInRound; m++) {
+          const matchId = `t-round${r}-m${m}`;
+          // Find match or represent as empty placeholder slot
+          let matchNode = t.matches.find(item => item.round === r && item.id === matchId);
+          
+          if (!matchNode) {
+            // Build placeholders connected from previous round winners if not generated yet
+            matchNode = { id: matchId, fighterA: null, fighterB: null, winner: null, winProbability: null, round: r };
+            t.matches.push(matchNode);
+          }
+
+          const fA = matchNode.fighterA;
+          const fB = matchNode.fighterB;
+          const win = matchNode.winner;
+
+          columnNodeHtml += `
+            <div class="p-2 bg-slate-950 border border-slate-900 rounded-xl space-y-1 relative shadow">
+              <!-- Fighter A Node Slot -->
+              <div class="flex items-center justify-between p-1 rounded ${win && win.id === fA?.id ? 'bg-emerald-950/20 text-emerald-400' : 'text-slate-400'}">
+                <div class="flex items-center space-x-1.5 overflow-hidden">
+                  <div class="w-4 h-4 rounded bg-slate-900 overflow-hidden shrink-0">
+                    <img src="${fA ? fA.imageUrl : ''}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/20x20/0f172a/94a3b8?text=?'">
+                  </div>
+                  <span class="text-[10px] font-bold truncate">${fA ? escapeHtml(fA.name) : '---'}</span>
+                </div>
+                ${win && win.id === fA?.id ? `<i class="fa-solid fa-crown text-[8px] text-amber-400"></i>` : ''}
+              </div>
+              
+              <div class="h-px bg-slate-900"></div>
+              
+              <!-- Fighter B Node Slot -->
+              <div class="flex items-center justify-between p-1 rounded ${win && win.id === fB?.id ? 'bg-emerald-950/20 text-emerald-400' : 'text-slate-400'}">
+                <div class="flex items-center space-x-1.5 overflow-hidden">
+                  <div class="w-4 h-4 rounded bg-slate-900 overflow-hidden shrink-0">
+                    <img src="${fB ? fB.imageUrl : ''}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/20x20/0f172a/94a3b8?text=?'">
+                  </div>
+                  <span class="text-[10px] font-bold truncate">${fB ? escapeHtml(fB.name) : '---'}</span>
+                </div>
+                ${win && win.id === fB?.id ? `<i class="fa-solid fa-crown text-[8px] text-amber-400"></i>` : ''}
+              </div>
+            </div>
+          `;
+        }
+        
+        columnNodeHtml += '</div>';
+        columnsHtml += columnNodeHtml;
+      }
+
+      // Render Final Winner Card Column
+      let winnerCol = `<div class="flex flex-col justify-center items-center min-w-[150px] bg-gradient-to-b from-amber-500/5 to-transparent border border-dashed border-amber-500/20 rounded-xl p-3">`;
+      winnerCol += `<span class="text-[9px] uppercase tracking-widest text-amber-400 font-extrabold mb-2 block"><i class="fa-solid fa-trophy"></i> Champion</span>`;
+      if (t.winner) {
+        winnerCol += `
+          <div class="text-center space-y-2">
+            <div class="w-16 h-16 rounded-full border-2 border-amber-500 overflow-hidden mx-auto shadow-lg shadow-amber-500/20">
+              <img src="${t.winner.imageUrl}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/60x60/0f172a/94a3b8?text=?'">
+            </div>
+            <h4 class="text-xs font-black text-amber-400 uppercase tracking-wider accent-font">${escapeHtml(t.winner.name)}</h4>
+            <span class="text-[8px] uppercase font-bold text-slate-500 block leading-tight">${escapeHtml(t.winner.variant || 'Default')}</span>
+          </div>
+        `;
+      } else {
+        winnerCol += `
+          <div class="text-center text-slate-600">
+            <i class="fa-solid fa-crown text-2xl mb-1.5 animate-pulse"></i>
+            <span class="text-[10px] font-bold block leading-none">Awaiting Climax</span>
+          </div>
+        `;
+      }
+      winnerCol += '</div>';
+      columnsHtml += winnerCol;
+
+      grid.innerHTML = columnsHtml;
+    }
+
+    function updateTournamentQueueDisplay() {
+      if (!window.activeTournament) return;
+      const t = window.activeTournament;
+      
+      if (t.winner) {
+        document.getElementById('tournament-match-up-text').innerHTML = `Tournament Complete! Champion: <span class="text-amber-400 font-bold">${escapeHtml(t.winner.name)}</span>`;
+        document.getElementById('active-tournament-status-badge').className = "px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+        document.getElementById('active-tournament-status-badge').innerText = "Champions Declared";
+        
+        document.getElementById('tournament-next-btn').disabled = true;
+        document.getElementById('tournament-auto-btn').disabled = true;
+        return;
+      }
+
+      // Find first un-simulated match
+      const currentMatch = t.matches.find(m => !m.winner && m.fighterA && m.fighterB);
+      
+      if (currentMatch) {
+        document.getElementById('tournament-match-up-text').innerHTML = `Round ${currentMatch.round}: <span class="text-blue-400 font-bold">${escapeHtml(currentMatch.fighterA.name)}</span> vs <span class="text-red-400 font-bold">${escapeHtml(currentMatch.fighterB.name)}</span>`;
+        document.getElementById('active-tournament-status-badge').className = "px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20";
+        document.getElementById('active-tournament-status-badge').innerText = `Round ${currentMatch.round} Active`;
+        document.getElementById('tournament-next-btn').disabled = false;
+        document.getElementById('tournament-auto-btn').disabled = false;
+      } else {
+        // If no active matchups can run, wait, do we advance rounds?
+        advanceActiveTournamentRound();
+      }
+    }
+
+    function advanceActiveTournamentRound() {
+      if (!window.activeTournament) return;
+      const t = window.activeTournament;
+      
+      const currentRound = t.currentRound;
+      const matchesInCurrentRound = t.matches.filter(m => m.round === currentRound);
+      
+      // Double check that all matches in the current round are resolved
+      const unResolved = matchesInCurrentRound.some(m => !m.winner);
+      if (unResolved) return; // Wait until all are done
+      
+      // Advance to next round
+      const nextRound = currentRound + 1;
+      const nextRoundMatchesCount = t.limit / Math.pow(2, nextRound);
+      
+      if (nextRoundMatchesCount < 1) {
+        // Tournament over! Final winner declared
+        const finalMatch = t.matches.find(m => m.round === currentRound);
+        t.winner = finalMatch.winner;
+        
+        // Save tournament chronicle
+        localDbEngine.saveTournament(t);
+        loadLocalData();
+        
+        renderActiveTournamentBracketGrid();
+        updateTournamentQueueDisplay();
+        return;
+      }
+
+      // Generate next round matchup parameters from winners of previous round
+      const winners = matchesInCurrentRound.map(m => m.winner);
+      const nextMatches = [];
+      
+      for (let i = 0; i < winners.length; i += 2) {
+        const matchId = `t-round${nextRound}-m${i/2}`;
+        // Find existing node slot to inject participants
+        let matchNode = t.matches.find(item => item.round === nextRound && item.id === matchId);
+        if (!matchNode) {
+          matchNode = { id: matchId, fighterA: winners[i], fighterB: winners[i+1], winner: null, winProbability: null, round: nextRound };
+          t.matches.push(matchNode);
+        } else {
+          matchNode.fighterA = winners[i];
+          matchNode.fighterB = winners[i+1];
+        }
+      }
+
+      t.currentRound = nextRound;
+      renderActiveTournamentBracketGrid();
+      updateTournamentQueueDisplay();
+    }
+
+    window.executeTournamentNextMatch = async function() {
+      if (!window.activeTournament) return;
+      const t = window.activeTournament;
+      
+      const currentMatch = t.matches.find(m => !m.winner && m.fighterA && m.fighterB);
+      if (!currentMatch) return;
+
+      const fA = currentMatch.fighterA;
+      const fB = currentMatch.fighterB;
+
+      // Single standard duel run
+      const report = generateMockBattleReport(fA, fB, "Clash Arena", "Tournament Standard Rules", "None");
+      
+      // Save winner details
+      currentMatch.winner = report.predictedWinner.toLowerCase().includes(fA.name.toLowerCase()) ? fA : fB;
+      currentMatch.winProbability = report.winProbability;
+
+      // Also register single combat document in matches feed
+      const battlePayload = {
+        fighterAId: fA.id,
+        fighterAName: `${fA.name} (${fA.variant || 'Default'})`,
+        fighterBId: fB.id,
+        fighterBName: `${fB.name} (${fB.variant || 'Default'})`,
+        predictedWinner: report.predictedWinner,
+        winProbability: report.winProbability,
+        phase1Setup: report.phase1Setup,
+        phase2MidGame: report.phase2MidGame,
+        phase3Climax: report.phase3Climax,
+        verdictSummary: report.verdictSummary,
+        customBattleground: "Tournament Arena",
+        customRules: "Standard bracket rules apply",
+        customHandicaps: null,
+        timestamp: Date.now(),
+        battleSceneImgUrl: "fallback-split"
+      };
+
+      localDbEngine.saveBattle(battlePayload);
+      loadLocalData();
+
+      renderActiveTournamentBracketGrid();
+      updateTournamentQueueDisplay();
+    };
+
+    window.toggleAutoRunTournament = function() {
+      const isRunning = window.tournamentAutoRunning || false;
+      const btn = document.getElementById('tournament-auto-btn');
+      const text = document.getElementById('tournament-auto-text');
+
+      if (isRunning) {
+        window.tournamentAutoRunning = false;
+        text.innerText = "Fast-Forward All";
+        btn.className = "flex-1 sm:flex-initial px-5 py-2.5 bg-slate-850 hover:bg-slate-800 text-slate-200 font-bold rounded-lg text-xs transition active:scale-95 flex items-center justify-center gap-1.5 border border-slate-700";
+      } else {
+        window.tournamentAutoRunning = true;
+        text.innerText = "Pause Simulation";
+        btn.className = "flex-1 sm:flex-initial px-5 py-2.5 bg-red-950/40 hover:bg-red-950/60 text-red-400 font-bold rounded-lg text-xs transition active:scale-95 flex items-center justify-center gap-1.5 border border-red-900/30";
+        autoRunTournamentTick();
+      }
+    };
+
+    async function autoRunTournamentTick() {
+      if (!window.tournamentAutoRunning || !window.activeTournament) return;
+      const t = window.activeTournament;
+      
+      if (t.winner) {
+        window.tournamentAutoRunning = false;
+        document.getElementById('tournament-auto-text').innerText = "Fast-Forward All";
+        document.getElementById('tournament-auto-btn').className = "flex-1 sm:flex-initial px-5 py-2.5 bg-slate-850 hover:bg-slate-800 text-slate-200 font-bold rounded-lg text-xs transition active:scale-95 flex items-center justify-center gap-1.5 border border-slate-700";
+        return;
+      }
+
+      await executeTournamentNextMatch();
+      setTimeout(autoRunTournamentTick, 1000);
+    }
+
+    window.terminateActiveTournament = function() {
+      openConfirmModal(
+        "Abandon Tournament?",
+        "Are you sure you want to close the active tournament arena simulation? Unresolved brackets will be discarded.",
+        () => {
+          window.activeTournament = null;
+          window.tournamentAutoRunning = false;
+          document.getElementById('tournament-active-card').classList.add('hidden');
+          closeConfirmModal();
+        }
+      );
+    };
+
+    window.openTournamentsExplorer = function() {
+      document.getElementById('tournaments-explorer-modal').classList.remove('hidden');
+      applyTournamentExplorerFilters(false);
+    };
+
+    window.closeTournamentsExplorer = function() {
+      document.getElementById('tournaments-explorer-modal').classList.add('hidden');
+    };
+
+    window.clearTournamentFilters = function() {
+      document.getElementById('explorer-tournament-search').value = '';
+      document.getElementById('explorer-tournament-size-filter').value = 'All';
+      document.getElementById('explorer-tournament-sort').value = 'Newest';
+      document.getElementById('explorer-tournament-limit').value = '25';
+      window.tournamentItemsPerPage = 25;
+      window.tournamentCurrentPage = 1;
+      applyTournamentExplorerFilters(true);
+    };
+
+    window.changeTournamentLimit = function() {
+      window.tournamentItemsPerPage = parseInt(document.getElementById('explorer-tournament-limit').value) || 25;
+      window.tournamentCurrentPage = 1;
+      applyTournamentExplorerFilters(true);
+    };
+
+    window.changeTournamentPage = function(newPage) {
+      window.tournamentCurrentPage = newPage;
+      applyTournamentExplorerFilters(true);
+    };
+
+    window.applyTournamentExplorerFilters = function(keepPage = false) {
+      if (!keepPage) window.tournamentCurrentPage = 1;
+      
+      const search = document.getElementById('explorer-tournament-search').value.toLowerCase().trim();
+      const size = document.getElementById('explorer-tournament-size-filter').value;
+      const sort = document.getElementById('explorer-tournament-sort').value;
+
+      let filtered = [...tournamentsGlobal];
+
+      if (search) {
+        filtered = filtered.filter(t => t.title.toLowerCase().includes(search) || (t.desc && t.desc.toLowerCase().includes(search)));
+      }
+      if (size !== 'All') {
+        filtered = filtered.filter(t => t.limit === parseInt(size));
+      }
+
+      // Sort
+      if (sort === 'Newest') {
+        filtered.sort((a, b) => b.id.localeCompare(a.id));
+      } else if (sort === 'Oldest') {
+        filtered.sort((a, b) => a.id.localeCompare(b.id));
+      } else if (sort === 'Alphabetical') {
+        filtered.sort((a, b) => a.title.localeCompare(b.title));
+      }
+
+      // Pagination
+      const totalItems = filtered.length;
+      const totalPages = Math.ceil(totalItems / window.tournamentItemsPerPage) || 1;
+      if (window.tournamentCurrentPage > totalPages) window.tournamentCurrentPage = totalPages;
+      if (window.tournamentCurrentPage < 1) window.tournamentCurrentPage = 1;
+
+      const start = (window.tournamentCurrentPage - 1) * window.tournamentItemsPerPage;
+      const end = start + window.tournamentItemsPerPage;
+      const paginated = filtered.slice(start, end);
+
+      renderExplorerTournamentGrid(paginated);
+      renderExplorerTournamentPagination(window.tournamentCurrentPage, totalPages, totalItems);
+    };
+
+    function renderExplorerTournamentGrid(tours) {
+      const container = document.getElementById('explorer-tournament-grid');
+      if (!container) return;
+      if (tours.length === 0) {
+        container.innerHTML = `<div class="py-12 text-center text-slate-500 text-sm">No historical tournament chronicles match filters.</div>`;
+        return;
+      }
+
+      container.innerHTML = tours.map(t => `
+        <div class="p-4 bg-slate-950/60 border border-slate-800 rounded-xl flex flex-col md:flex-row justify-between gap-4 items-start md:items-center shadow">
+          <div>
+            <span class="text-[9px] font-bold px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-amber-400 uppercase font-mono">${t.limit} Competitors</span>
+            <h4 class="font-extrabold text-sm text-slate-200 mt-1 leading-tight">${escapeHtml(t.title)}</h4>
+            <p class="text-[10px] text-slate-400 mt-1 italic">${escapeHtml(t.desc || 'No tournament narrative entered.')}</p>
+          </div>
+          <div class="shrink-0 flex items-center gap-3">
+            ${t.winner ? `
+              <div class="text-right">
+                <span class="text-[9px] text-slate-500 uppercase block font-bold leading-none">Champion</span>
+                <span class="text-xs font-black text-amber-400 uppercase tracking-wide accent-font mt-1 block">${escapeHtml(t.winner.name)}</span>
+              </div>
+            ` : ''}
+            <button onclick="restoreTournamentChronicle('${t.id}')" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-750 text-slate-300 font-semibold rounded-lg text-xs border border-slate-700 transition">
+              Show Tree
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    window.restoreTournamentChronicle = function(id) {
+      const t = tournamentsGlobal.find(item => item.id === id);
+      if (!t) return;
+      
+      window.activeTournament = t;
+      closeTournamentsExplorer();
+      
+      document.getElementById('tournament-active-card').classList.remove('hidden');
+      document.getElementById('active-tournament-title').innerText = t.title.toUpperCase();
+      document.getElementById('active-tournament-desc').innerText = t.desc;
+      
+      renderActiveTournamentBracketGrid();
+      updateTournamentQueueDisplay();
+      
+      document.getElementById('tournament-active-card').scrollIntoView({ behavior: 'smooth' });
+    };
+
+    function renderExplorerTournamentPagination(currentPage, totalPages, totalItems) {
+      const container = document.getElementById('explorer-tournament-pagination');
+      if (!container) return;
+      if (totalItems === 0) {
+        container.innerHTML = '';
+        return;
+      }
+      const startIdx = (currentPage - 1) * window.tournamentItemsPerPage + 1;
+      const endIdx = Math.min(currentPage * window.tournamentItemsPerPage, totalItems);
+
+      container.innerHTML = `
+        <div class="text-slate-400">
+          Showing <span class="font-bold text-slate-200">${startIdx}</span> to <span class="font-bold text-slate-200">${endIdx}</span> of <span class="font-bold text-slate-200">${totalItems}</span> tournaments
+        </div>
+        <div class="flex items-center space-x-2">
+          <button onclick="changeTournamentPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg transition font-semibold flex items-center gap-1">Prev</button>
+          <span class="text-slate-300 px-3 bg-slate-950/60 py-1.5 rounded-lg border border-slate-850">Page <span class="text-amber-400 font-extrabold">${currentPage}</span> of ${totalPages}</span>
+          <button onclick="changeTournamentPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg transition font-semibold flex items-center gap-1">Next</button>
+        </div>
+      `;
+    }
+
+    window.setCommunityFeedMode = function(mode) {
+      window.communityFeedMode = mode;
+      
+      const matchTab = document.getElementById('feed-tab-matches');
+      const tourTab = document.getElementById('feed-tab-tournaments');
+      const matchesFeed = document.getElementById('matches-feed');
+      const toursFeed = document.getElementById('tournaments-feed');
+      
+      if (mode === 'tournaments') {
+        matchesFeed.classList.add('hidden');
+        toursFeed.classList.remove('hidden');
+        
+        matchTab.className = "text-xs font-extrabold px-3 py-1 text-slate-500 hover:text-slate-300 flex items-center gap-1.5";
+        tourTab.className = "text-xs font-extrabold px-3 py-1 bg-slate-950 border border-slate-800 rounded-lg text-purple-400 flex items-center gap-1.5";
+        
+        updateTournamentsFeedUI();
+      } else {
+        toursFeed.classList.add('hidden');
+        matchesFeed.classList.remove('hidden');
+        
+        tourTab.className = "text-xs font-extrabold px-3 py-1 text-slate-500 hover:text-slate-300 flex items-center gap-1.5";
+        matchTab.className = "text-xs font-extrabold px-3 py-1 bg-slate-950 border border-slate-800 rounded-lg text-purple-400 flex items-center gap-1.5";
+        
+        updateBattlesUI(battlesGlobal);
+      }
+    };
+
+    function updateTournamentsFeedUI() {
+      const container = document.getElementById('tournaments-feed');
+      if (!container) return;
+      if (tournamentsGlobal.length === 0) {
+        container.innerHTML = `<div class="text-xs text-slate-500 py-6 text-center">No bracket chronicles recorded yet.</div>`;
+        return;
+      }
+
+      container.innerHTML = tournamentsGlobal.slice(0, 10).map(t => `
+        <div onclick="restoreTournamentChronicle('${t.id}')" class="p-3 bg-slate-950/70 border border-slate-800 hover:border-slate-750 rounded-lg cursor-pointer transition">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[9px] font-mono text-slate-500">${t.limit} COMPETITORS</span>
+            <span class="text-[9px] px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 font-bold">${t.winner ? 'Complete' : 'In Progress'}</span>
+          </div>
+          <h4 class="font-extrabold text-xs text-slate-200 truncate">${escapeHtml(t.title)}</h4>
+          ${t.winner ? `<p class="text-[10px] text-slate-400 truncate mt-1 leading-normal italic">Champion: <span class="text-amber-400 font-bold">${escapeHtml(t.winner.name)}</span></p>` : ''}
+        </div>
+      `).join('');
+    }
+
+    window.triggerFeedExplorer = function() {
+      if (window.communityFeedMode === 'tournaments') {
+        openTournamentsExplorer();
+      } else {
+        openMatchesExplorer();
+      }
+    };
+
+    window.exportData = function() {
+      const data = {
+        characters: charactersGlobal,
+        battles: battlesGlobal,
+        tournaments: tournamentsGlobal
+      };
+      const json = JSON.stringify(data, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `battle-lab-database-backup-${Date.now()}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    };
+
+    window.triggerImport = function() {
+      document.getElementById('import-file-input').click();
+    };
+
+    window.handleImportFileSelect = function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const raw = JSON.parse(e.target.result);
+          if (raw.characters) localStorage.setItem('battle_lab_characters', JSON.stringify(raw.characters));
+          if (raw.battles) localStorage.setItem('battle_lab_battles', JSON.stringify(raw.battles));
+          if (raw.tournaments) localStorage.setItem('battle_lab_tournaments', JSON.stringify(raw.tournaments));
+          
+          openModal("Restore Complete", "Database registry backup has been successfully fully restored!", "fa-solid fa-circle-check text-emerald-400");
+          loadLocalData();
+        } catch (err) {
+          console.error(err);
+          openModal("Import Failed", "Failed reading custom JSON database format: " + err.message, "fa-solid fa-triangle-exclamation");
+        }
+      };
+      reader.readAsText(file);
+    };
+
+    window.triggerClearDatabase = function() {
+      openConfirmModal(
+        "Purge Entire Database?",
+        "This will permanently delete all your registered custom characters, fight histories, and bracket chronicles. There is no undo unless you have a JSON backup.",
+        () => {
+          localStorage.removeItem('battle_lab_characters');
+          localStorage.removeItem('battle_lab_battles');
+          localStorage.removeItem('battle_lab_tournaments');
+          loadLocalData();
+          closeConfirmModal();
+          openModal("Data Purged", "Sandbox database reset completed successfully.", "fa-solid fa-circle-check text-emerald-400");
+        }
+      );
     };
   </script>
 </body>
