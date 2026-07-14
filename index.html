@@ -23,7 +23,7 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cinzel:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600;700;800&family=Cinzel:wght=600;700;800&display=swap" rel="stylesheet">
   
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -66,7 +66,7 @@
             <i class="fa-solid fa-gears text-indigo-400"></i>
             <span class="hidden sm:inline">Settings</span>
           </button>
-          <span id="sync-badge" class="flex h-2.5 w-2.5 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b]" title="Local Sandbox Mode"></span>
+          <span id="sync-badge" class="flex h-2.5 w-2.5 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b]" title="Connecting..."></span>
         </div>
       </div>
     </header>
@@ -373,9 +373,9 @@
       <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
         <p>© 2026 Nexus VS • Serverless Client-Side Architecture</p>
         <p class="flex items-center gap-3">
-          <span class="flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> Online</span>
+          <span class="flex items-center gap-1.5"><span id="sync-footer-indicator" class="h-1.5 w-1.5 rounded-full bg-amber-500"></span> <span id="sync-footer-text">Connecting...</span></span>
           <span>•</span>
-          <a href="https://github.com" target="_blank" class="hover:text-slate-300 transition">View on GitHub</a>
+          <a id="github-repo-link" href="https://github.com/crunchycodes/Battle-Lab" target="_blank" class="hover:text-slate-300 transition">View on GitHub</a>
         </p>
       </div>
     </footer>
@@ -397,7 +397,7 @@
         <div>
           <label class="block text-xs font-semibold text-slate-300 mb-1.5 flex justify-between items-center">
             <span>Google Gemini API Key</span>
-            <a href="https://aistudio.google.com/" target="_blank" class="text-indigo-400 hover:underline">Get Key <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i></a>
+            <a href="https://aistudio.google.com/" target="_blank" class="text-indigo-400 hover:underline text-[10px]">Get Key <i class="fa-solid fa-arrow-up-right-from-square text-[8px]"></i></a>
           </label>
           <div class="relative">
             <input type="password" id="settings-gemini-key" class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none transition" placeholder="Paste your AI Studio gemini API key...">
@@ -408,12 +408,15 @@
         </div>
 
         <div class="border-t border-slate-800/80 my-4 pt-4">
-          <h4 class="text-xs font-bold text-slate-300 mb-3 flex items-center gap-1.5"><i class="fa-brands fa-github text-slate-400"></i> GitHub Database Sync (Optional)</h4>
-          <p class="text-[11px] text-slate-400 leading-relaxed mb-4">Provide a repository token and destination to save data directly back to your GitHub repo (enabling true permanent cloud storage on GitHub Pages!).</p>
+          <h4 class="text-xs font-bold text-slate-300 mb-2 flex items-center gap-1.5"><i class="fa-brands fa-github text-slate-400"></i> GitHub Database Sync</h4>
+          <p class="text-[11px] text-slate-400 leading-relaxed mb-3">To enable global writing, generate a Personal Access Token (classic) with <code class="text-indigo-400">public_repo</code> access. This token is securely saved *only* in your local browser storage.</p>
           
           <div class="space-y-3">
             <div>
-              <label class="block text-[11px] font-semibold text-slate-400 mb-1">GitHub Personal Access Token (PAT)</label>
+              <label class="block text-[11px] font-semibold text-slate-400 mb-1 flex justify-between items-center">
+                <span>GitHub Personal Access Token (PAT)</span>
+                <a id="quick-pat-link" href="#" target="_blank" class="text-indigo-400 hover:underline text-[10px] font-bold">1-Click Token Generator <i class="fa-solid fa-arrow-up-right-from-square text-[8px]"></i></a>
+              </label>
               <div class="relative">
                 <input type="password" id="settings-github-pat" class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none transition" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
                 <button onclick="togglePasswordVisibility('settings-github-pat')" class="absolute right-3.5 top-2.5 text-slate-400 hover:text-slate-200 transition text-sm">
@@ -422,27 +425,29 @@
               </div>
             </div>
             
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block text-[11px] font-semibold text-slate-400 mb-1">Owner / Username</label>
-                <input type="text" id="settings-github-owner" class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none transition" placeholder="e.g. Octocat">
-              </div>
-              <div>
-                <label class="block text-[11px] font-semibold text-slate-400 mb-1">Repository Name</label>
-                <input type="text" id="settings-github-repo" class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none transition" placeholder="e.g. battle-lab-repo">
+            <!-- Repository Advanced Information (Automatically Computed) -->
+            <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-850 space-y-2">
+              <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Detected Repository (Auto-Computed)</span>
+              <div class="grid grid-cols-2 gap-2 text-[11px] text-slate-300">
+                <div>
+                  <span class="text-slate-500 block text-[9px] uppercase">Owner / Username</span>
+                  <span id="detected-github-owner" class="font-semibold text-slate-200">crunchycodes</span>
+                </div>
+                <div>
+                  <span class="text-slate-500 block text-[9px] uppercase">Repository Name</span>
+                  <span id="detected-github-repo" class="font-semibold text-slate-200">Battle-Lab</span>
+                </div>
+                <div>
+                  <span class="text-slate-500 block text-[9px] uppercase">Target Branch</span>
+                  <span id="detected-github-branch" class="font-semibold text-slate-200">main</span>
+                </div>
+                <div>
+                  <span class="text-slate-500 block text-[9px] uppercase">Target Filepath</span>
+                  <span id="detected-github-path" class="font-semibold text-slate-200">roster.json</span>
+                </div>
               </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block text-[11px] font-semibold text-slate-400 mb-1">Branch</label>
-                <input type="text" id="settings-github-branch" class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none transition" placeholder="main">
-              </div>
-              <div>
-                <label class="block text-[11px] font-semibold text-slate-400 mb-1">Target Filepath</label>
-                <input type="text" id="settings-github-path" class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none transition" placeholder="char-battle-archive.json">
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -556,10 +561,10 @@
       settings: {
         geminiApiKey: "",
         githubPat: "",
-        githubOwner: "",
-        githubRepo: "",
+        githubOwner: "crunchycodes",
+        githubRepo: "Battle-Lab",
         githubBranch: "main",
-        githubPath: "char-battle-archive.json"
+        githubPath: "roster.json"
       }
     };
 
@@ -662,9 +667,53 @@
       }
     ];
 
+    // Auto-detect GitHub Owner and Repo based on host URL
+    function detectGithubEnvironment() {
+      const loc = window.location;
+      let owner = "crunchycodes";
+      let repo = "Battle-Lab";
+      let branch = "main";
+      let path = "roster.json";
+
+      if (loc.hostname.endsWith("github.io")) {
+        // Example: crunchycodes.github.io/Battle-Lab/
+        owner = loc.hostname.split(".")[0];
+        const pathParts = loc.pathname.split("/").filter(Boolean);
+        if (pathParts.length > 0) {
+          repo = pathParts[0];
+        }
+      }
+
+      state.settings.githubOwner = owner;
+      state.settings.githubRepo = repo;
+      state.settings.githubBranch = branch;
+      state.settings.githubPath = path;
+
+      // Update Quick Token Generator Link
+      const genUrl = `https://github.com/settings/tokens/new?scopes=public_repo&description=Nexus%20VS%20Battle%20Lab%20-%20${repo}`;
+      const quickLink = document.getElementById("quick-pat-link");
+      if (quickLink) quickLink.href = genUrl;
+
+      // Update Detected info block
+      const dOwner = document.getElementById("detected-github-owner");
+      const dRepo = document.getElementById("detected-github-repo");
+      const dBranch = document.getElementById("detected-github-branch");
+      const dPath = document.getElementById("detected-github-path");
+
+      if (dOwner) dOwner.textContent = owner;
+      if (dRepo) dRepo.textContent = repo;
+      if (dBranch) dBranch.textContent = branch;
+      if (dPath) dPath.textContent = path;
+
+      // Footer repo links
+      const footerLink = document.getElementById("github-repo-link");
+      if (footerLink) footerLink.href = `https://github.com/${owner}/${repo}`;
+    }
+
     // Initialize Application
-    window.addEventListener("DOMContentLoaded", () => {
+    window.addEventListener("DOMContentLoaded", async () => {
       loadStateFromLocalStorage();
+      detectGithubEnvironment();
       
       // If characters are empty, seed with initial mock data
       if (state.characters.length === 0) {
@@ -672,6 +721,9 @@
         state.battles = [...initialSeedBattles];
         saveStateToLocalStorage();
       }
+
+      // Automatically trigger Read-Only Sync from the public GitHub Repo (no Token required)
+      await publicReadFromGitHub();
       
       // Select first two characters as defaults
       if (state.characters.length >= 2) {
@@ -680,7 +732,11 @@
       }
 
       renderUI();
-      tryToSyncWithGitHub(true); // Attempt silent fetch if PAT is present
+      
+      // If user has a saved PAT, try authenticating/syncing full capabilities
+      if (state.settings.githubPat) {
+        tryToSyncWithGitHub(true);
+      }
     });
 
     // Save/Load Local Settings Fallback
@@ -743,13 +799,9 @@
 
     // System Settings Controller
     window.openSettingsModal = function() {
+      detectGithubEnvironment();
       document.getElementById("settings-gemini-key").value = state.settings.geminiApiKey || "";
       document.getElementById("settings-github-pat").value = state.settings.githubPat || "";
-      document.getElementById("settings-github-owner").value = state.settings.githubOwner || "";
-      document.getElementById("settings-github-repo").value = state.settings.githubRepo || "";
-      document.getElementById("settings-github-branch").value = state.settings.githubBranch || "main";
-      document.getElementById("settings-github-path").value = state.settings.githubPath || "char-battle-archive.json";
-      
       document.getElementById("modal-settings").classList.remove("hidden");
     };
 
@@ -769,28 +821,54 @@
     window.saveSystemSettings = async function() {
       state.settings.geminiApiKey = document.getElementById("settings-gemini-key").value.trim();
       state.settings.githubPat = document.getElementById("settings-github-pat").value.trim();
-      state.settings.githubOwner = document.getElementById("settings-github-owner").value.trim();
-      state.settings.githubRepo = document.getElementById("settings-github-repo").value.trim();
-      state.settings.githubBranch = document.getElementById("settings-github-branch").value.trim() || "main";
-      state.settings.githubPath = document.getElementById("settings-github-path").value.trim() || "char-battle-archive.json";
 
       localStorage.setItem("vs_battler_settings", JSON.stringify(state.settings));
       closeSettingsModal();
       showNotification("Settings updated locally!", "success");
 
       // Verify and sync with GitHub repo if PAT was supplied
-      if (state.settings.githubPat && state.settings.githubOwner && state.settings.githubRepo) {
+      if (state.settings.githubPat) {
         await tryToSyncWithGitHub();
       } else {
-        updateSyncBadge(false);
+        await publicReadFromGitHub();
       }
       renderUI();
     };
 
-    // GitHub Repo Sync Pipeline
+    // Token-Free read directly from public raw.githubusercontent.com
+    async function publicReadFromGitHub() {
+      const owner = state.settings.githubOwner || "crunchycodes";
+      const repo = state.settings.githubRepo || "Battle-Lab";
+      const branch = state.settings.githubBranch || "main";
+      const path = state.settings.githubPath || "roster.json";
+
+      const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${path}?t=${Date.now()}`;
+
+      try {
+        const response = await fetch(rawUrl);
+        if (response.ok) {
+          const parsed = await response.json();
+          if (parsed.characters && parsed.battles) {
+            state.characters = parsed.characters;
+            state.battles = parsed.battles;
+            saveStateToLocalStorage();
+            updateSyncBadge("readonly");
+            showNotification("Roster & battles successfully loaded from GitHub (Read-Only Mode)", "success");
+            renderUI();
+          }
+        } else {
+          throw new Error("Local sandbox database deployed.");
+        }
+      } catch (error) {
+        updateSyncBadge("local");
+        showNotification("No remote roster file found. Using local database sandbox.", "info");
+      }
+    }
+
+    // GitHub Repo Sync Pipeline (With Token)
     async function tryToSyncWithGitHub(silent = false) {
-      if (!state.settings.githubPat || !state.settings.githubOwner || !state.settings.githubRepo) {
-        updateSyncBadge(false);
+      if (!state.settings.githubPat) {
+        updateSyncBadge("readonly");
         return;
       }
 
@@ -814,19 +892,18 @@
             state.characters = parsed.characters;
             state.battles = parsed.battles;
             saveStateToLocalStorage();
-            updateSyncBadge(true);
-            if (!silent) showNotification("Database synchronized from GitHub!", "success");
+            updateSyncBadge("write");
+            if (!silent) showNotification("Admin synchronized! Read & Write access confirmed.", "success");
             renderUI();
           }
         }
       } catch (error) {
-        updateSyncBadge(false);
+        updateSyncBadge("readonly");
         if (!silent) {
           if (error.status === 404) {
-            // Repo or file doesn't exist, we will create it upon committing first change
-            showNotification("Remote archive file not found. Committing initial data upon next battle or roster edit.", "info");
+            showNotification("Remote roster file doesn't exist yet. It will be committed upon next save.", "info");
           } else {
-            showNotification(`GitHub Error: ${error.message}`, "error");
+            showNotification(`GitHub Auth Error: ${error.message}. Defaulting to Read-Only.`, "warning");
           }
         }
       }
@@ -834,7 +911,7 @@
 
     // Write updated content back to GitHub Repository
     async function commitToGitHub() {
-      if (!state.settings.githubPat || !state.settings.githubOwner || !state.settings.githubRepo) {
+      if (!state.settings.githubPat) {
         return; // Pure sandbox local save
       }
 
@@ -872,22 +949,37 @@
           sha: sha || undefined
         });
 
-        updateSyncBadge(true);
-        showNotification("Cloud synchronization complete! Data pushed to GitHub.", "success");
+        updateSyncBadge("write");
+        showNotification("Cloud synchronization complete! Changes saved permanently to roster.json.", "success");
       } catch (error) {
-        updateSyncBadge(false);
+        updateSyncBadge("readonly");
         showNotification(`Failed to push updates to GitHub: ${error.message}`, "error");
       }
     }
 
-    function updateSyncBadge(online) {
+    function updateSyncBadge(mode) {
       const badge = document.getElementById("sync-badge");
-      if (online) {
+      const fIndicator = document.getElementById("sync-footer-indicator");
+      const fText = document.getElementById("sync-footer-text");
+
+      if (mode === "write") {
+        const titleText = "Admin Sync Engaged (Auto-saving enabled)";
         badge.className = "flex h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]";
-        badge.title = "Connected to GitHub Sync";
+        badge.title = titleText;
+        if (fIndicator) fIndicator.className = "h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse";
+        if (fText) fText.textContent = "Admin Sync Enabled";
+      } else if (mode === "readonly") {
+        const titleText = "Connected to GitHub (Read-Only Mode)";
+        badge.className = "flex h-2.5 w-2.5 rounded-full bg-indigo-500 shadow-[0_0_8px_#6366f1]";
+        badge.title = titleText;
+        if (fIndicator) fIndicator.className = "h-1.5 w-1.5 rounded-full bg-indigo-500";
+        if (fText) fText.textContent = "GitHub Feed Online";
       } else {
+        const titleText = "Local Sandbox Mode (Not connected to GitHub)";
         badge.className = "flex h-2.5 w-2.5 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b]";
-        badge.title = "Local Sandbox Mode (Configure Settings for GitHub Cloud Storage)";
+        badge.title = titleText;
+        if (fIndicator) fIndicator.className = "h-1.5 w-1.5 rounded-full bg-amber-500";
+        if (fText) fText.textContent = "Offline Sandbox";
       }
     }
 
@@ -928,7 +1020,7 @@
 
             <div class="flex gap-2 mt-5 pt-3 border-t border-slate-850/60">
               <button onclick="deleteCharacter('${char.id}')" class="text-xs bg-slate-950 hover:bg-red-950/20 text-slate-400 hover:text-red-400 px-3 py-2 rounded-lg border border-slate-850 hover:border-red-900/30 transition flex-1" title="Delete Fighter">
-                <i class="fa-solid fa-trash-can mr-1"></i> Delete
+                <i class="fa-solid fa-trash-can mr-1"></i> Purge
               </button>
               <button onclick="setAsActiveChallenger('${char.id}')" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-3 py-2 rounded-lg transition flex-1">
                 <i class="fa-solid fa-gamepad mr-1"></i> Pick Fighter
