@@ -699,6 +699,13 @@ window.resetArena = function() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
+window.closeReport = function() {
+  const board = document.getElementById("simulation-board");
+  board.classList.add("hidden");
+  document.getElementById("history-grid").classList.remove("hidden");
+  document.getElementById("history-header").classList.remove("hidden");
+};
+
 window.openDisputeModal = function() {
   document.getElementById("dispute-input-text").value = "";
   document.getElementById("modal-dispute").classList.remove("hidden");
@@ -1476,7 +1483,11 @@ function playbackBattle(battle) {
 window.playbackSavedBattle = function(battleId) {
   const battle = state.battles.find(b => b.id === battleId);
   if (battle) {
-    switchTab("arena");
+    switchTab("history");
+    document.getElementById("history-grid").classList.add("hidden");
+    document.getElementById("history-header").classList.add("hidden");
+    const board = document.getElementById("simulation-board");
+    document.getElementById("history-report-container").appendChild(board);
     document.getElementById("simulation-board").classList.remove("hidden");
     document.getElementById("combat-loader").classList.add("hidden");
     document.getElementById("fight-presentation").classList.remove("hidden");

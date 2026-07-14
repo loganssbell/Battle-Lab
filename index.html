@@ -580,16 +580,11 @@
                 </div>
               </div>
             </div>
-
-            <!-- Reset Actions -->
             <div class="flex justify-center pt-4">
-              <button onclick="resetArena()" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-bold transition flex items-center gap-2 shadow-lg shadow-indigo-500/10">
-                <i class="fa-solid fa-circle-play"></i> Set New Matchup
+              <button onclick="closeReport()" class="text-xs bg-slate-800 hover:bg-slate-700 text-white px-6 py-3 rounded-xl font-bold transition flex items-center gap-2 shadow-lg">
+                <i class="fa-solid fa-xmark"></i> Close Report
               </button>
             </div>
-          </div>
-        </div>
-
       </section>
 
       <!-- ================= ROSTER TAB ================= -->
@@ -612,9 +607,13 @@
 
       <!-- ================= HISTORY TAB ================= -->
       <section id="tab-history" class="tab-content hidden">
-        <div class="mb-8">
+        <div id="history-header" class="mb-8">
           <h2 class="text-2xl font-bold text-white tracking-tight font-display tracking-widest bg-gradient-to-r from-indigo-400 via-violet-300 to-indigo-400 bg-clip-text text-transparent">Match History Database</h2>
           <p class="text-xs text-slate-400 font-medium">Browse historical simulations computed by AI models</p>
+        </div>
+
+        <!-- Container for the report, which is moved here from arena -->
+        <div id="history-report-container">
         </div>
 
         <div id="history-grid" class="space-y-6">
