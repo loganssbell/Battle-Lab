@@ -27,11 +27,36 @@
   
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    .accent-font {
+      font-family: 'Cinzel', serif;
+    }
+    .bg-grid {
+      background-size: 40px 40px;
+      background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #090d16;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+  </style>
 </head>
-<body class="h-full font-sans antialiased selection:bg-indigo-500 selection:text-white overflow-x-hidden">
+<body class="h-full font-sans antialiased selection:bg-indigo-500 selection:text-white overflow-x-hidden bg-grid">
 
   <!-- Custom Alert Notification Box -->
-  <div id="notification-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3 max-w-sm w-full"></div>
+  <div id="notification-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3 max-w-sm w-full font-sans"></div>
 
   <!-- Main Container -->
   <div class="min-h-screen flex flex-col justify-between">
@@ -93,7 +118,7 @@
       <!-- ================= ARENA TAB ================= -->
       <section id="tab-arena" class="tab-content block">
         <!-- Versus Selection Board -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch mb-10">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch mb-6">
           
           <!-- Fighter 1 Card -->
           <div class="lg:col-span-5 bg-gradient-to-b from-slate-900 to-indigo-950/40 border border-slate-800 hover:border-indigo-500/40 rounded-3xl p-6 transition flex flex-col justify-between shadow-2xl relative overflow-hidden group">
@@ -202,6 +227,54 @@
 
         </div>
 
+        <!-- Collapsible Match Customizations -->
+        <div class="mb-10">
+          <div class="flex justify-end">
+            <button onclick="toggleAdvancedOptions()" type="button" class="px-4 py-2 bg-slate-900/60 hover:bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-xl text-xs font-semibold text-slate-300 transition flex items-center gap-2">
+              <i class="fa-solid fa-sliders text-indigo-400"></i>
+              <span>Match Customizations & Options</span>
+              <i id="advanced-options-arrow" class="fa-solid fa-chevron-down text-[10px] text-slate-500 transition-transform"></i>
+            </button>
+          </div>
+
+          <div id="advanced-options-panel" class="hidden mt-4 p-5 rounded-2xl bg-slate-900/40 border border-slate-800/80 space-y-4 backdrop-blur-sm">
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2 border-b border-slate-800/60 pb-2">
+              <i class="fa-solid fa-gear text-indigo-400"></i> Advanced Simulation Settings
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="space-y-3">
+                <div class="flex items-center justify-between p-3 bg-slate-950/40 rounded-xl border border-slate-850">
+                  <div class="flex flex-col pr-2">
+                    <span class="text-xs font-bold text-slate-300">Bypass AI Scene Generation</span>
+                    <span class="text-[10px] text-slate-500 leading-tight">Skip rendering complex illustrations. Instantly display versus cards.</span>
+                  </div>
+                  <label class="relative inline-flex items-center cursor-pointer select-none">
+                    <input type="checkbox" id="bypass-image-gen-toggle" class="sr-only peer">
+                    <div class="w-9 h-5 bg-slate-800 rounded-full peer-focus:outline-none after:content-[''] after:absolute after:top-[2.5px] after:left-[2.5px] after:bg-slate-400 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white peer-checked:after:translate-x-full relative"></div>
+                  </label>
+                </div>
+
+                <div>
+                  <label class="block text-[10px] text-slate-400 uppercase tracking-wider mb-1 font-bold">Custom Battleground / Location</label>
+                  <input type="text" id="custom-battleground" placeholder="e.g. Asgard under siege, neon-drenched cyber Tokyo street" class="w-full bg-slate-950 border border-slate-850 rounded-xl p-2.5 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition">
+                </div>
+              </div>
+
+              <div class="space-y-3">
+                <div>
+                  <label class="block text-[10px] text-slate-400 uppercase tracking-wider mb-1 font-bold">Special Combat Rules</label>
+                  <input type="text" id="custom-rules" placeholder="e.g. Morals off, no gadgets, winner by ring-out only" class="w-full bg-slate-950 border border-slate-850 rounded-xl p-2.5 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition">
+                </div>
+
+                <div>
+                  <label class="block text-[10px] text-slate-400 uppercase tracking-wider mb-1 font-bold">Fighter Handicaps</label>
+                  <input type="text" id="custom-handicaps" placeholder="e.g. Challenger Alpha starts disarmed, Challenger Omega is blindfolded" class="w-full bg-slate-950 border border-slate-850 rounded-xl p-2.5 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Simulation Progress & Results Board -->
         <div id="simulation-board" class="hidden bg-slate-900 border border-slate-850 rounded-3xl p-6 sm:p-8 shadow-2xl relative mb-10 overflow-hidden">
           
@@ -217,123 +290,229 @@
           </div>
 
           <!-- Fight Playback / Phase Presentation -->
-          <div id="fight-presentation" class="hidden">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-5 mb-6">
+          <div id="fight-presentation" class="hidden space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-5 mb-4">
               <div>
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1 block">Live Combat Logs</span>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1 block">Simulation Report</span>
                 <h3 class="text-xl sm:text-2xl font-bold text-white tracking-tight flex items-center gap-2">
                   <span id="header-f1">Fighter 1</span> <span class="text-indigo-400 font-light text-base">VS</span> <span id="header-f2">Fighter 2</span>
                 </h3>
               </div>
-              <div class="flex items-center gap-3 w-full sm:w-auto">
-                <button id="playback-prev" onclick="changePlaybackPhase(-1)" class="flex-1 sm:flex-none text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3.5 py-2 rounded-xl transition font-semibold flex items-center justify-center gap-1.5 border border-slate-700/60">
-                  <i class="fa-solid fa-chevron-left"></i> Previous Phase
+              <div class="flex flex-wrap items-center gap-2">
+                <button onclick="triggerRematch()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-blue-400 hover:text-blue-300 text-xs font-bold rounded-xl border border-slate-700 transition flex items-center gap-1.5">
+                  <i class="fa-solid fa-arrows-rotate"></i> <span>Rematch</span>
                 </button>
-                <div id="playback-indicator" class="text-xs font-bold text-slate-400 px-4 py-2 bg-slate-950/80 rounded-xl border border-slate-850">
-                  Phase 1 / 3
-                </div>
-                <button id="playback-next" onclick="changePlaybackPhase(1)" class="flex-1 sm:flex-none text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3.5 py-2 rounded-xl transition font-semibold flex items-center justify-center gap-1.5 border border-slate-700/60">
-                  Next Phase <i class="fa-solid fa-chevron-right"></i>
+                <button onclick="openDisputeModal()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-amber-400 hover:text-amber-300 text-xs font-bold rounded-xl border border-slate-700 transition flex items-center gap-1.5">
+                  <i class="fa-solid fa-scale-unbalanced"></i> <span>Dispute Outcome</span>
                 </button>
               </div>
             </div>
 
-            <!-- Active Phase Container -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <!-- WINNER DECLARATION HEADER -->
+            <div class="text-center py-6 bg-gradient-to-r from-slate-950 via-indigo-950/20 to-slate-950 rounded-2xl border border-slate-850 relative overflow-hidden">
+              <p class="text-[10px] text-indigo-400 uppercase tracking-widest font-bold">Predicted Victor</p>
+              <h3 id="predicted-winner" class="text-3xl sm:text-4xl font-extrabold text-white font-display tracking-wide mt-1 drop-shadow-md">---</h3>
               
-              <!-- Left: Combat Story Column -->
-              <div class="lg:col-span-8 space-y-6">
-                <!-- Visual Phase Indicator Header -->
-                <div class="bg-indigo-950/30 border border-indigo-900/30 rounded-2xl p-4 flex items-center gap-4">
-                  <div id="phase-badge" class="bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-3 py-1 rounded-xl text-xs font-extrabold uppercase tracking-widest shrink-0">
-                    Phase 1
+              <div class="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 mt-3 text-xs text-indigo-300 font-semibold gap-2">
+                <i class="fa-solid fa-circle-check text-indigo-400"></i>
+                <span>Win Probability: <span id="win-probability">--%</span></span>
+              </div>
+
+              <!-- Climax Combat Illustration -->
+              <div id="battle-scene-wrapper" class="mt-6 mx-4 border border-slate-800/80 rounded-2xl overflow-hidden bg-slate-950/70 relative aspect-video flex flex-col items-center justify-center min-h-[220px]">
+                <div id="battle-scene-loading" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/90 space-y-3 z-10 p-4">
+                  <div class="flex space-x-1.5 items-center justify-center">
+                    <span class="w-2.5 h-2.5 bg-indigo-500 rounded-full animate-bounce" style="animation-delay: 0ms;"></span>
+                    <span class="w-2.5 h-2.5 bg-purple-500 rounded-full animate-bounce" style="animation-delay: 150ms;"></span>
+                    <span class="w-2.5 h-2.5 bg-pink-500 rounded-full animate-bounce" style="animation-delay: 300ms;"></span>
+                  </div>
+                  <div class="text-center">
+                    <p class="text-xs font-bold text-slate-300">Synthesizing Combat Scene...</p>
+                    <p class="text-[10px] text-slate-500 mt-1">Illustrating dynamic climax fight sequence</p>
+                  </div>
+                </div>
+                
+                <img id="battle-scene-img" src="" alt="AI Battle Climax Illustration" class="w-full h-full object-contain bg-slate-950 hidden">
+
+                <div id="battle-scene-fallback" class="hidden absolute inset-0 flex items-center justify-center bg-slate-950 p-4 gap-6 md:gap-8">
+                  <!-- Winner representation -->
+                  <div class="relative flex flex-col items-center justify-center w-[45%] h-full rounded-xl border border-indigo-500/50 bg-indigo-950/10 p-3 shadow-lg shadow-indigo-500/5">
+                    <div class="absolute top-2 left-2 px-2 py-0.5 bg-indigo-600/90 text-[8px] font-bold text-white rounded uppercase tracking-wider flex items-center gap-1 shadow-sm">
+                      <i class="fa-solid fa-crown text-[8px] text-yellow-300 animate-pulse"></i> Victor
+                    </div>
+                    <img id="fallback-winner-img" class="w-full h-[70%] object-cover rounded-lg filter drop-shadow-[0_0_15px_rgba(99,102,241,0.25)]" src="" alt="Winner fallback">
+                    <span id="fallback-winner-name" class="mt-2.5 text-xs font-bold text-indigo-300 truncate w-full text-center">Winner</span>
+                  </div>
+                  
+                  <!-- VS indicator -->
+                  <div class="text-slate-700 font-extrabold text-sm tracking-wider select-none">VS</div>
+                  
+                  <!-- Loser representation -->
+                  <div class="relative flex flex-col items-center justify-center w-[45%] h-full rounded-xl border border-slate-900 bg-slate-900/10 p-3 opacity-40 grayscale transition-all">
+                    <div class="absolute top-2 left-2 px-2 py-0.5 bg-slate-950 text-[8px] font-bold text-slate-500 rounded uppercase tracking-wider">Defeated</div>
+                    <img id="fallback-loser-img" class="w-full h-[70%] object-cover rounded-lg" src="" alt="Loser fallback">
+                    <span id="fallback-loser-name" class="mt-2.5 text-xs font-semibold text-slate-500 truncate w-full text-center">Loser</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ACTIVE SIMULATION CONDITIONS -->
+            <div id="active-conditions-container" class="hidden p-4 bg-slate-950/80 border border-slate-800/80 rounded-2xl space-y-3 relative overflow-hidden">
+              <div class="absolute -right-8 -top-8 w-24 h-24 bg-amber-500/5 rounded-full blur-2xl pointer-events-none"></div>
+              <h4 class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5 border-b border-slate-800/60 pb-2">
+                <i class="fa-solid fa-sliders text-amber-400"></i> Active Simulation Conditions
+              </h4>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                <div id="active-bg-box" class="hidden p-2.5 bg-slate-900/50 rounded-xl border border-slate-850">
+                  <span class="text-[9px] text-slate-500 uppercase block font-bold mb-0.5"><i class="fa-solid fa-earth-americas text-indigo-400/80 mr-1"></i>Battleground</span>
+                  <span id="active-battleground-val" class="font-semibold text-slate-200"></span>
+                </div>
+                <div id="active-rules-box" class="hidden p-2.5 bg-slate-900/50 rounded-xl border border-slate-850">
+                  <span class="text-[9px] text-slate-500 uppercase block font-bold mb-0.5"><i class="fa-solid fa-gavel text-violet-400/80 mr-1"></i>Special Rules</span>
+                  <span id="active-rules-val" class="font-semibold text-slate-200"></span>
+                </div>
+                <div id="active-handicaps-box" class="hidden p-2.5 bg-slate-900/50 rounded-xl border border-slate-850">
+                  <span class="text-[9px] text-slate-500 uppercase block font-bold mb-0.5"><i class="fa-solid fa-triangle-exclamation text-pink-400/80 mr-1"></i>Applied Handicaps</span>
+                  <span id="active-handicaps-val" class="font-semibold text-slate-200"></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- CHALLENGER PORTFOLIOS COMPARISON -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Fighter Alpha Portfolio -->
+              <div class="bg-slate-950/50 border border-slate-850 rounded-2xl overflow-hidden p-4 space-y-4">
+                <div class="flex gap-4 items-center border-b border-slate-850 pb-3">
+                  <img id="portfolio-f1-img" src="" class="w-16 h-16 rounded-xl object-cover border border-slate-800 bg-slate-900" onerror="this.src='https://placehold.co/150x150/1e1e30/ffffff?text=Fighter'">
+                  <div>
+                    <h4 id="portfolio-f1-name" class="font-bold text-lg text-indigo-400">---</h4>
+                    <span id="portfolio-f1-media" class="text-[10px] text-slate-500 uppercase font-mono">---</span>
+                  </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                  <div>
+                    <span class="text-[9px] text-slate-500 uppercase block">Variant</span>
+                    <strong id="portfolio-f1-variant" class="text-slate-300">Default</strong>
                   </div>
                   <div>
-                    <h4 id="phase-title" class="font-bold text-white text-sm sm:text-base leading-tight">Opening Clash</h4>
-                    <p id="phase-subtitle" class="text-xs text-slate-400">Initiative phase and basic capability assessment</p>
+                    <span class="text-[9px] text-slate-500 uppercase block">Weight</span>
+                    <strong id="portfolio-f1-weight" class="text-slate-300">N/A</strong>
                   </div>
                 </div>
-
-                <!-- Live Dynamic Combat Narrative -->
-                <div class="bg-slate-950/60 border border-slate-850 p-6 rounded-2xl min-h-[160px] flex items-center">
-                  <p id="phase-body" class="text-sm sm:text-base text-slate-200 leading-relaxed italic select-all"></p>
+                <div>
+                  <span class="text-[9px] text-slate-500 uppercase block mb-1">Dossier Biography</span>
+                  <p id="portfolio-f1-bio" class="text-xs text-slate-400 leading-relaxed italic bg-slate-900/30 p-2.5 rounded-xl border border-slate-850/60"></p>
                 </div>
-                
-                <!-- Onomatopoeia Banner -->
-                <div id="battle-sfx" class="flex justify-center items-center h-14 bg-gradient-to-r from-red-600/10 via-amber-500/10 to-blue-600/10 rounded-xl border border-dashed border-slate-800">
-                  <span id="battle-sfx-text" class="font-display font-black text-lg italic text-amber-400 tracking-widest animate-bounce">CLASH!</span>
+                <div>
+                  <span class="text-[9px] text-slate-500 uppercase block mb-1">Combat Mindset</span>
+                  <p id="portfolio-f1-mindset" class="text-xs text-slate-400 leading-relaxed"></p>
+                </div>
+                <div>
+                  <span class="text-[9px] text-slate-500 uppercase block mb-1">Strengths & Powers</span>
+                  <div id="portfolio-f1-powers" class="flex flex-wrap gap-1"></div>
                 </div>
               </div>
 
-              <!-- Right: Battle Health / Strategy Indicators -->
-              <div class="lg:col-span-4 bg-slate-950/40 border border-slate-850 p-6 rounded-2xl space-y-6">
-                <h5 class="text-xs uppercase tracking-widest font-bold text-slate-400 mb-4 flex items-center gap-1.5">
-                  <i class="fa-solid fa-chart-simple text-indigo-400"></i> Match Status
-                </h5>
-
-                <!-- Fighter 1 Current Health / Drive -->
+              <!-- Fighter Omega Portfolio -->
+              <div class="bg-slate-950/50 border border-slate-850 rounded-2xl overflow-hidden p-4 space-y-4">
+                <div class="flex gap-4 items-center border-b border-slate-850 pb-3">
+                  <img id="portfolio-f2-img" src="" class="w-16 h-16 rounded-xl object-cover border border-slate-800 bg-slate-900" onerror="this.src='https://placehold.co/150x150/1e1e30/ffffff?text=Fighter'">
+                  <div>
+                    <h4 id="portfolio-f2-name" class="font-bold text-lg text-pink-400">---</h4>
+                    <span id="portfolio-f2-media" class="text-[10px] text-slate-500 uppercase font-mono">---</span>
+                  </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                  <div>
+                    <span class="text-[9px] text-slate-500 uppercase block">Variant</span>
+                    <strong id="portfolio-f2-variant" class="text-slate-300">Default</strong>
+                  </div>
+                  <div>
+                    <span class="text-[9px] text-slate-500 uppercase block">Weight</span>
+                    <strong id="portfolio-f2-weight" class="text-slate-300">N/A</strong>
+                  </div>
+                </div>
                 <div>
-                  <div class="flex justify-between text-xs font-semibold mb-1.5">
-                    <span id="f1-indicator-name" class="text-slate-300">Fighter 1</span>
-                    <span id="f1-indicator-health" class="text-indigo-400">100%</span>
-                  </div>
-                  <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
-                    <div id="f1-health-bar" class="bg-gradient-to-r from-indigo-600 to-indigo-400 h-full transition-all duration-700" style="width: 100%"></div>
-                  </div>
+                  <span class="text-[9px] text-slate-500 uppercase block mb-1">Dossier Biography</span>
+                  <p id="portfolio-f2-bio" class="text-xs text-slate-400 leading-relaxed italic bg-slate-900/30 p-2.5 rounded-xl border border-slate-850/60"></p>
                 </div>
-
-                <!-- Fighter 2 Current Health / Drive -->
                 <div>
-                  <div class="flex justify-between text-xs font-semibold mb-1.5">
-                    <span id="f2-indicator-name" class="text-slate-300">Fighter 2</span>
-                    <span id="f2-indicator-health" class="text-pink-400">100%</span>
-                  </div>
-                  <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
-                    <div id="f2-health-bar" class="bg-gradient-to-r from-pink-600 to-pink-400 h-full transition-all duration-700" style="width: 100%"></div>
-                  </div>
+                  <span class="text-[9px] text-slate-500 uppercase block mb-1">Combat Mindset</span>
+                  <p id="portfolio-f2-mindset" class="text-xs text-slate-400 leading-relaxed"></p>
                 </div>
-
-                <!-- AI Assessment Data -->
-                <div class="bg-slate-900/80 border border-slate-800 p-4 rounded-xl space-y-3.5">
-                  <div class="flex justify-between text-xs border-b border-slate-800/80 pb-2">
-                    <span class="text-slate-400">Predicted Winner</span>
-                    <strong id="sidebar-winner" class="text-emerald-400">Undecided</strong>
-                  </div>
-                  <div class="flex justify-between text-xs">
-                    <span class="text-slate-400">Win Probability</span>
-                    <strong id="sidebar-prob" class="text-amber-400">Calculating...</strong>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-
-            <!-- Verdict & Summary Section (Only visible on last phase/finished combat) -->
-            <div id="verdict-wrapper" class="hidden mt-8 pt-8 border-t border-slate-850 bg-gradient-to-r from-slate-950 via-indigo-950/10 to-slate-950 border-x border-b rounded-b-3xl -mx-6 -mb-6 p-6 sm:p-8">
-              <div class="max-w-3xl mx-auto space-y-5">
-                <div class="flex items-center gap-3 mb-2 justify-center">
-                  <i class="fa-solid fa-crown text-2xl text-yellow-400 animate-bounce"></i>
-                  <h3 class="text-2xl font-bold text-center tracking-tight text-white">THE FINAL VERDICT</h3>
-                </div>
-                
-                <p id="verdict-summary" class="text-slate-300 text-sm sm:text-base leading-relaxed text-center italic select-all">
-                  Verdict goes here...
-                </p>
-
-                <div class="flex flex-col sm:flex-row justify-center items-center gap-3 pt-4">
-                  <button onclick="switchTab('history')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2.5 rounded-xl font-semibold transition border border-slate-700/50">
-                    <i class="fa-solid fa-clock-rotate-left mr-1.5"></i> View Match History
-                  </button>
-                  <button onclick="resetArena()" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-bold transition">
-                    <i class="fa-solid fa-circle-play mr-1.5"></i> Set New Matchup
-                  </button>
+                <div>
+                  <span class="text-[9px] text-slate-500 uppercase block mb-1">Strengths & Powers</span>
+                  <div id="portfolio-f2-powers" class="flex flex-wrap gap-1"></div>
                 </div>
               </div>
             </div>
 
+            <!-- DETAILED CHRONOLOGY CARDS -->
+            <div class="space-y-4">
+              <h4 class="text-sm font-bold text-slate-300 border-b border-slate-800 pb-2 flex items-center">
+                <i class="fa-solid fa-hourglass-half text-indigo-400 mr-2 animate-spin" style="animation-duration: 4s;"></i> Fight Chronology & Analysis
+              </h4>
+              <div class="grid grid-cols-1 gap-4">
+                <!-- Phase 1 Setup -->
+                <div class="p-4 bg-slate-950/50 rounded-2xl border border-slate-850">
+                  <span class="text-[10px] text-indigo-400 font-extrabold uppercase tracking-wider block mb-1.5">Phase 1: Opening Clash & Setup</span>
+                  <p id="results-phase-1" class="text-sm text-slate-300 leading-relaxed"></p>
+                </div>
+                <!-- Phase 2 Evolution -->
+                <div class="p-4 bg-slate-950/50 rounded-2xl border border-slate-850">
+                  <span class="text-[10px] text-purple-400 font-extrabold uppercase tracking-wider block mb-1.5">Phase 2: Tactical Adaptation & Clash</span>
+                  <p id="results-phase-2" class="text-sm text-slate-300 leading-relaxed"></p>
+                </div>
+                <!-- Phase 3 Climax -->
+                <div class="p-4 bg-slate-950/50 rounded-2xl border border-slate-850">
+                  <span class="text-[10px] text-pink-400 font-extrabold uppercase tracking-wider block mb-1.5">Phase 3: The Decisive Climax</span>
+                  <p id="results-phase-3" class="text-sm text-slate-300 leading-relaxed"></p>
+                </div>
+              </div>
+            </div>
+
+            <!-- VERDICT SUMMARY -->
+            <div class="p-5 bg-slate-950 border border-slate-850 rounded-2xl space-y-2 relative overflow-hidden">
+              <div class="absolute -right-12 -top-12 w-32 h-32 bg-indigo-600/5 rounded-full blur-3xl"></div>
+              <h4 class="text-xs font-bold uppercase tracking-widest text-indigo-400 flex items-center gap-1.5">
+                <i class="fa-solid fa-crown text-yellow-400"></i> Lore Master's Explanatory Verdict
+              </h4>
+              <p id="results-verdict" class="text-base text-slate-200 leading-relaxed italic"></p>
+            </div>
+
+            <!-- DISPUTE PANEL -->
+            <div id="dispute-display-box" class="hidden p-5 bg-slate-950/80 border border-amber-500/30 rounded-2xl space-y-3 relative overflow-hidden">
+              <div class="absolute -right-8 -bottom-8 w-24 h-24 bg-amber-500/5 rounded-full blur-2xl pointer-events-none"></div>
+              <h4 class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5 border-b border-slate-800/60 pb-2">
+                <i class="fa-solid fa-scale-unbalanced text-amber-500"></i> Lore Arbitration Record
+              </h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                <div class="p-3.5 bg-amber-950/15 rounded-xl border border-amber-900/20">
+                  <span class="text-[9px] text-amber-400/80 uppercase block font-bold mb-1"><i class="fa-solid fa-user mr-1"></i>User's Dispute Argument</span>
+                  <p id="dispute-display-text" class="text-slate-300 leading-relaxed italic"></p>
+                </div>
+                <div class="p-3.5 bg-indigo-950/15 rounded-xl border border-indigo-900/20">
+                  <span class="text-[9px] text-indigo-400/80 uppercase block font-bold mb-1"><i class="fa-solid fa-brain mr-1"></i>AI Core Arbitration Response</span>
+                  <div id="dispute-override-badge" class="hidden mb-1">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[8px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                      <i class="fa-solid fa-arrows-rotate mr-1 animate-spin"></i>Outcome Reversed
+                    </span>
+                  </div>
+                  <p id="dispute-response-text" class="text-slate-300 leading-relaxed"></p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Reset Actions -->
+            <div class="flex justify-center pt-4">
+              <button onclick="resetArena()" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-bold transition flex items-center gap-2 shadow-lg shadow-indigo-500/10">
+                <i class="fa-solid fa-circle-play"></i> Set New Matchup
+              </button>
+            </div>
           </div>
-
         </div>
+
       </section>
 
       <!-- ================= ROSTER TAB ================= -->
@@ -459,25 +638,127 @@
     </div>
   </div>
 
-  <!-- ================= SELECT FIGHTER MODAL ================= -->
+  <!-- ================= SPLIT-PANE SELECT FIGHTER MODAL ================= -->
   <div id="modal-select-fighter" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full p-6 shadow-2xl relative flex flex-col max-h-[85vh]">
-      <button onclick="closeSelectFighterModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white text-lg transition"><i class="fa-solid fa-xmark"></i></button>
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-4xl w-full p-6 shadow-2xl relative flex flex-col max-h-[85vh]">
+      <button onclick="closeSelectFighterModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white text-lg transition z-20"><i class="fa-solid fa-xmark"></i></button>
       
       <div class="mb-4">
-        <h3 id="select-fighter-title" class="text-lg font-bold text-white">Recruit Multiversal Fighter</h3>
-        <p class="text-xs text-slate-400">Select a contender for the active simulation slot</p>
+        <h3 id="select-fighter-title" class="text-xl font-bold text-white font-display">Recruit Multiversal Fighter</h3>
+        <p class="text-xs text-slate-400">Select a contender from the database registry or slot them dynamically</p>
       </div>
 
-      <!-- Quick Search -->
-      <div class="mb-4 relative">
-        <span class="absolute left-3.5 top-3 text-slate-500 text-xs"><i class="fa-solid fa-magnifying-glass"></i></span>
-        <input type="text" id="search-selector-input" oninput="filterFighterSelector()" class="w-full bg-slate-950 border border-slate-850 focus:border-indigo-500 rounded-xl pl-9 pr-4 py-2.5 text-xs text-slate-200 focus:outline-none transition" placeholder="Filter fighters by name, franchise, powers...">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6 overflow-hidden flex-grow min-h-0">
+        <!-- Left Pane: Search & scrollable selector list -->
+        <div class="md:col-span-5 flex flex-col overflow-hidden space-y-3">
+          <div class="relative">
+            <span class="absolute left-3.5 top-3.5 text-slate-500 text-xs"><i class="fa-solid fa-magnifying-glass"></i></span>
+            <input type="text" id="search-selector-input" oninput="filterFighterSelector()" class="w-full bg-slate-950 border border-slate-850 focus:border-indigo-500 rounded-xl pl-9 pr-4 py-2.5 text-xs text-slate-200 focus:outline-none transition" placeholder="Search by name, franchise, powers...">
+          </div>
+
+          <div id="selector-scroll-container" class="overflow-y-auto space-y-2 flex-grow pr-1">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Right Pane: Live Dossier Inspector -->
+        <div id="selector-dossier-pane" class="md:col-span-7 bg-slate-950/60 rounded-2xl border border-slate-850 p-4 flex flex-col justify-between overflow-y-auto min-h-0">
+          <!-- Default unselected state -->
+          <div id="selector-dossier-empty" class="flex flex-col items-center justify-center h-full text-slate-500 py-12 space-y-2">
+            <i class="fa-solid fa-user-shield text-3xl text-slate-700 animate-pulse text-indigo-500"></i>
+            <p class="text-xs">Select a profile on the left to preview dossier stats</p>
+          </div>
+
+          <!-- Highlighted dossier info state -->
+          <div id="selector-dossier-details" class="hidden space-y-4">
+            <div class="flex gap-4 items-start border-b border-slate-850 pb-3">
+              <img id="sel-dossier-img" src="" class="w-16 h-16 rounded-xl object-cover bg-slate-900 border border-slate-800" onerror="this.src='https://placehold.co/150x150/1e1e30/ffffff?text=Fighter'">
+              <div class="overflow-hidden">
+                <h4 id="sel-dossier-name" class="font-bold text-lg text-white">---</h4>
+                <p id="sel-dossier-media" class="text-xs text-indigo-400 truncate"></p>
+                <span id="sel-dossier-alignment" class="inline-block mt-1 text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider bg-slate-900 border border-slate-850 text-indigo-300">---</span>
+              </div>
+            </div>
+
+            <!-- Biometrics table grid -->
+            <div class="grid grid-cols-2 gap-2 text-xs bg-slate-900/50 p-2.5 rounded-xl border border-slate-850">
+              <div>
+                <span class="text-[9px] text-slate-500 uppercase block">Real Identity</span>
+                <strong id="sel-dossier-real" class="text-slate-300 font-semibold">---</strong>
+              </div>
+              <div>
+                <span class="text-[9px] text-slate-500 uppercase block">Variant Name</span>
+                <strong id="sel-dossier-variant" class="text-slate-300 font-semibold">---</strong>
+              </div>
+              <div>
+                <span class="text-[9px] text-slate-500 uppercase block">Height</span>
+                <strong id="sel-dossier-height" class="text-slate-300 font-semibold">---</strong>
+              </div>
+              <div>
+                <span class="text-[9px] text-slate-500 uppercase block">Weight</span>
+                <strong id="sel-dossier-weight" class="text-slate-300 font-semibold">---</strong>
+              </div>
+            </div>
+
+            <!-- Dossier Text blocks -->
+            <div class="space-y-2">
+              <div>
+                <span class="text-[9px] text-slate-500 uppercase block font-bold mb-0.5">Backstory & Bio</span>
+                <p id="sel-dossier-bio" class="text-xs text-slate-400 line-clamp-3 leading-relaxed italic"></p>
+              </div>
+              <div>
+                <span class="text-[9px] text-slate-500 uppercase block font-bold mb-0.5">Mindset & Tactics</span>
+                <p id="sel-dossier-personality" class="text-xs text-slate-400 line-clamp-2 leading-relaxed"></p>
+              </div>
+              <div>
+                <span class="text-[9px] text-slate-500 uppercase block font-bold mb-1">Signature Capabilities</span>
+                <div id="sel-dossier-powers" class="flex flex-wrap gap-1"></div>
+              </div>
+            </div>
+
+            <!-- Slot action buttons -->
+            <div class="pt-3 border-t border-slate-850/60 flex gap-3">
+              <button id="sel-btn-slot1" class="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition active:scale-95 flex items-center justify-center gap-1.5 shadow-lg shadow-indigo-500/10">
+                <i class="fa-solid fa-mask"></i> Slot Challenger Alpha
+              </button>
+              <button id="sel-btn-slot2" class="flex-1 py-2.5 bg-pink-600 hover:bg-pink-700 text-white text-xs font-bold rounded-xl transition active:scale-95 flex items-center justify-center gap-1.5 shadow-lg shadow-pink-500/10">
+                <i class="fa-solid fa-spider"></i> Slot Challenger Omega
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= DISPUTE INPUT MODAL ================= -->
+  <div id="modal-dispute" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div onclick="event.stopPropagation()" class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl relative">
+      <button onclick="closeDisputeModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white text-lg transition"><i class="fa-solid fa-xmark"></i></button>
+      
+      <div class="flex items-center space-x-3 mb-4">
+        <div class="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-400">
+          <i class="fa-solid fa-scale-unbalanced text-lg"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-slate-200 text-lg">Dispute Simulation Outcome</h3>
+          <p class="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">Multiverse Lore Correction</p>
+        </div>
       </div>
 
-      <!-- Scrollable Fighter Roster -->
-      <div id="selector-scroll-container" class="overflow-y-auto space-y-2 flex-grow pr-1">
-        <!-- Content filled dynamically -->
+      <p class="text-xs text-slate-400 leading-relaxed mb-4">
+        Explain why this outcome is incorrect or misunderstood by the AI Core. Your dispute will be processed by the Gemini model to re-evaluate and possibly override the victory!
+      </p>
+
+      <textarea id="dispute-input-text" rows="4" placeholder="e.g. Nezuko's regeneration speed scales far past Eraserhead's tactical capture weapon, meaning she would overwhelm him before he could execute a decisive strike..." class="w-full bg-slate-950 border border-slate-850 rounded-xl p-3 text-xs text-slate-200 placeholder-slate-650 focus:outline-none focus:border-amber-500 mb-4"></textarea>
+
+      <div class="flex space-x-2">
+        <button onclick="closeDisputeModal()" class="flex-1 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs transition">
+          Cancel
+        </button>
+        <button onclick="submitLoreDispute()" class="flex-1 py-2.5 bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-white font-bold rounded-xl text-xs transition shadow flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-gavel"></i> Submit Dispute
+        </button>
       </div>
     </div>
   </div>
@@ -556,8 +837,8 @@
       battles: [],
       selectedFighter1: null,
       selectedFighter2: null,
-      activePlaybackBattle: null,
-      activePlaybackPhase: 1,
+      activeSelectionSlot: 1,
+      currentActiveSelectorChar: null,
       settings: {
         geminiApiKey: "",
         githubPat: "",
@@ -651,7 +932,11 @@
         predictedWinner: "Tanjiro Kamado",
         winProbability: "92%",
         verdictSummary: "Tanjiro secures a decisive victory due to a fundamental mismatch in power mechanics. Aizawa's primary advantage, Erasure, is ineffective against Breathing Styles which are purely physiological enhancements rather than Quirks. With the Transparent World allowing Tanjiro to predict Aizawa's movements with surgical precision, the Pro Hero has no viable way to restrain or outmaneuver the Sun Breather.",
-        timestamp: 1782394389124
+        timestamp: 1782394389124,
+        battleSceneImgUrl: "",
+        customBattleground: "",
+        customRules: "",
+        customHandicaps: ""
       },
       {
         id: "match-homelander-atrain",
@@ -663,7 +948,11 @@
         predictedWinner: "Homelander",
         winProbability: "99%",
         verdictSummary: "A completely one-sided slaughter. A-Train's high-speed kinematics hold zero destructive value against Homelander's invulnerable Kryptonian-level physiology. Under extreme pressure, A-Train's cardiovascular vulnerabilities flare up, while Homelander's high speed and flight enable him to easily track and dominate the fast but fragile speedster.",
-        timestamp: 1782395389124
+        timestamp: 1782395389124,
+        battleSceneImgUrl: "",
+        customBattleground: "",
+        customRules: "",
+        customHandicaps: ""
       }
     ];
 
@@ -676,7 +965,6 @@
       let path = "roster.json";
 
       if (loc.hostname.endsWith("github.io")) {
-        // Example: crunchycodes.github.io/Battle-Lab/
         owner = loc.hostname.split(".")[0];
         const pathParts = loc.pathname.split("/").filter(Boolean);
         if (pathParts.length > 0) {
@@ -689,12 +977,10 @@
       state.settings.githubBranch = branch;
       state.settings.githubPath = path;
 
-      // Update Quick Token Generator Link
       const genUrl = `https://github.com/settings/tokens/new?scopes=public_repo&description=Nexus%20VS%20Battle%20Lab%20-%20${repo}`;
       const quickLink = document.getElementById("quick-pat-link");
       if (quickLink) quickLink.href = genUrl;
 
-      // Update Detected info block
       const dOwner = document.getElementById("detected-github-owner");
       const dRepo = document.getElementById("detected-github-repo");
       const dBranch = document.getElementById("detected-github-branch");
@@ -705,7 +991,6 @@
       if (dBranch) dBranch.textContent = branch;
       if (dPath) dPath.textContent = path;
 
-      // Footer repo links
       const footerLink = document.getElementById("github-repo-link");
       if (footerLink) footerLink.href = `https://github.com/${owner}/${repo}`;
     }
@@ -715,17 +1000,14 @@
       loadStateFromLocalStorage();
       detectGithubEnvironment();
       
-      // If characters are empty, seed with initial mock data
       if (state.characters.length === 0) {
         state.characters = [...initialSeedCharacters];
         state.battles = [...initialSeedBattles];
         saveStateToLocalStorage();
       }
 
-      // Automatically trigger Read-Only Sync from the public GitHub Repo (no Token required)
       await publicReadFromGitHub();
       
-      // Select first two characters as defaults
       if (state.characters.length >= 2) {
         state.selectedFighter1 = state.characters[0];
         state.selectedFighter2 = state.characters[1];
@@ -733,7 +1015,6 @@
 
       renderUI();
       
-      // If user has a saved PAT, try authenticating/syncing full capabilities
       if (state.settings.githubPat) {
         tryToSyncWithGitHub(true);
       }
@@ -811,11 +1092,7 @@
 
     window.togglePasswordVisibility = function(id) {
       const input = document.getElementById(id);
-      if (input.type === "password") {
-        input.type = "text";
-      } else {
-        input.type = "password";
-      }
+      input.type = input.type === "password" ? "text" : "password";
     };
 
     window.saveSystemSettings = async function() {
@@ -826,7 +1103,6 @@
       closeSettingsModal();
       showNotification("Settings updated locally!", "success");
 
-      // Verify and sync with GitHub repo if PAT was supplied
       if (state.settings.githubPat) {
         await tryToSyncWithGitHub();
       } else {
@@ -875,7 +1151,6 @@
       try {
         const octokit = new Octokit({ auth: state.settings.githubPat });
         
-        // Attempt to fetch existing DB file from repo
         const response = await octokit.rest.repos.getContent({
           owner: state.settings.githubOwner,
           repo: state.settings.githubRepo,
@@ -884,7 +1159,6 @@
         });
 
         if (response.data && response.data.content) {
-          // Decode content from base64
           const decoded = atob(response.data.content.replace(/\s/g, ''));
           const parsed = JSON.parse(decoded);
           
@@ -912,14 +1186,13 @@
     // Write updated content back to GitHub Repository
     async function commitToGitHub() {
       if (!state.settings.githubPat) {
-        return; // Pure sandbox local save
+        return;
       }
 
       try {
         const octokit = new Octokit({ auth: state.settings.githubPat });
         let sha = null;
 
-        // Fetch SHA if file exists to overwrite it
         try {
           const fileMeta = await octokit.rest.repos.getContent({
             owner: state.settings.githubOwner,
@@ -929,7 +1202,7 @@
           });
           sha = fileMeta.data.sha;
         } catch (e) {
-          // 404 expected if file is new
+          // Expected for new files
         }
 
         const dataToUpload = {
@@ -1046,7 +1319,6 @@
           return;
         }
 
-        // Display newest first
         const sortedBattles = [...state.battles].sort((a,b) => b.timestamp - a.timestamp);
 
         sortedBattles.forEach(match => {
@@ -1113,7 +1385,6 @@
       document.getElementById(`${prefix}-weight`).textContent = contender.weight || "Unknown";
       document.getElementById(`${prefix}-img`).src = contender.imageUrl || "";
 
-      // Powers badges
       const powersBox = document.getElementById(`${prefix}-powers`);
       powersBox.innerHTML = "";
       if (contender.powers && contender.powers.length > 0) {
@@ -1129,18 +1400,20 @@
     }
 
     // Modal Selector Mechanics
-    let activeSelectionSlot = 1;
     window.openSelectFighterModal = function(slot) {
-      activeSelectionSlot = slot;
+      state.activeSelectionSlot = slot;
       document.getElementById("select-fighter-title").textContent = `Recruit Challenger ${slot === 1 ? 'Alpha' : 'Omega'}`;
       
-      filterFighterSelector(); // render initial list
+      filterFighterSelector(); 
       document.getElementById("modal-select-fighter").classList.remove("hidden");
     };
 
     window.closeSelectFighterModal = function() {
       document.getElementById("modal-select-fighter").classList.add("hidden");
       document.getElementById("search-selector-input").value = "";
+      state.currentActiveSelectorChar = null;
+      document.getElementById("selector-dossier-empty").classList.remove("hidden");
+      document.getElementById("selector-dossier-details").classList.add("hidden");
     };
 
     window.filterFighterSelector = function() {
@@ -1166,41 +1439,76 @@
       filtered.forEach(char => {
         const item = document.createElement("div");
         item.className = "flex items-center justify-between gap-4 p-3 bg-slate-950/60 hover:bg-slate-800 rounded-xl cursor-pointer transition border border-slate-850/50";
-        item.onclick = () => selectFighterForActiveSlot(char.id);
+        item.onclick = () => highlightFighterInDossier(char.id);
 
         item.innerHTML = `
-          <div class="flex items-center gap-3">
-            <img src="${char.imageUrl}" class="w-10 h-10 rounded-lg object-cover bg-slate-800" onerror="this.src='https://placehold.co/80x80/1e1e30/ffffff?text=${encodeURIComponent(char.name)}'">
-            <div>
-              <h4 class="text-xs sm:text-sm font-bold text-white">${char.name}</h4>
-              <p class="text-[10px] text-slate-400">${char.mediaSource}</p>
+          <div class="flex items-center gap-3 overflow-hidden">
+            <img src="${char.imageUrl}" class="w-10 h-10 rounded-lg object-cover bg-slate-800 shrink-0" onerror="this.src='https://placehold.co/80x80/1e1e30/ffffff?text=${encodeURIComponent(char.name)}'">
+            <div class="overflow-hidden">
+              <h4 class="text-xs sm:text-sm font-bold text-white truncate">${char.name}</h4>
+              <p class="text-[10px] text-slate-400 truncate">${char.mediaSource}</p>
             </div>
           </div>
-          <span class="text-xs font-semibold text-indigo-400 hover:underline">Select Contender <i class="fa-solid fa-chevron-right ml-1"></i></span>
+          <span class="text-xs font-semibold text-indigo-400 hover:underline shrink-0">Inspect <i class="fa-solid fa-chevron-right ml-1"></i></span>
         `;
         container.appendChild(item);
       });
     };
 
-    function selectFighterForActiveSlot(charId) {
+    function highlightFighterInDossier(charId) {
       const char = state.characters.find(c => c.id === charId);
-      if (char) {
-        if (activeSelectionSlot === 1) {
-          state.selectedFighter1 = char;
-        } else {
-          state.selectedFighter2 = char;
-        }
-        showNotification(`${char.name} drafted into Slot ${activeSelectionSlot === 1 ? 'Alpha' : 'Omega'}!`, "info");
+      if (!char) return;
+
+      state.currentActiveSelectorChar = char;
+      
+      document.getElementById("selector-dossier-empty").classList.add("hidden");
+      document.getElementById("selector-dossier-details").classList.remove("hidden");
+
+      document.getElementById("sel-dossier-img").src = char.imageUrl || "";
+      document.getElementById("sel-dossier-name").textContent = char.name;
+      document.getElementById("sel-dossier-media").textContent = char.mediaSource;
+      document.getElementById("sel-dossier-alignment").textContent = char.alignment || "Neutral";
+      document.getElementById("sel-dossier-real").textContent = char.realName || "Unknown";
+      document.getElementById("sel-dossier-variant").textContent = char.variant || "Default";
+      document.getElementById("sel-dossier-height").textContent = char.height || "N/A";
+      document.getElementById("sel-dossier-weight").textContent = char.weight || "N/A";
+
+      document.getElementById("sel-dossier-bio").textContent = char.bio || "No biography loaded.";
+      document.getElementById("sel-dossier-personality").textContent = char.personality || "Tactics unassigned.";
+
+      const powersBox = document.getElementById("sel-dossier-powers");
+      powersBox.innerHTML = "";
+      if (char.powers && char.powers.length > 0) {
+        char.powers.forEach(p => {
+          const badge = document.createElement("span");
+          badge.className = "text-[10px] bg-indigo-950/40 text-indigo-300 border border-indigo-900/40 px-2 py-0.5 rounded-md";
+          badge.textContent = p;
+          powersBox.appendChild(badge);
+        });
+      } else {
+        powersBox.innerHTML = `<span class="text-[10px] text-slate-500">No powers listed</span>`;
+      }
+
+      // Configure dynamic assign events
+      document.getElementById("sel-btn-slot1").onclick = () => {
+        state.selectedFighter1 = char;
+        showNotification(`${char.name} drafted into Slot Alpha!`, "info");
         renderUI();
         closeSelectFighterModal();
-      }
+      };
+
+      document.getElementById("sel-btn-slot2").onclick = () => {
+        state.selectedFighter2 = char;
+        showNotification(`${char.name} drafted into Slot Omega!`, "info");
+        renderUI();
+        closeSelectFighterModal();
+      };
     }
 
     window.setAsActiveChallenger = function(charId) {
       const char = state.characters.find(c => c.id === charId);
       if (!char) return;
 
-      // Draft into the first available slot, prioritizing empty slots
       if (!state.selectedFighter1) {
         state.selectedFighter1 = char;
         showNotification(`${char.name} drafted into Slot Alpha!`, "info");
@@ -1233,7 +1541,6 @@
 
     // Create New Fighter Mechanics
     window.openCreateFighterModal = function() {
-      // Clear forms
       document.getElementById("char-name").value = "";
       document.getElementById("char-real-name").value = "";
       document.getElementById("char-media").value = "";
@@ -1283,7 +1590,6 @@
       closeCreateFighterModal();
       renderUI();
 
-      // Trigger asynchronous push to GitHub
       await commitToGitHub();
     };
 
@@ -1294,7 +1600,6 @@
       const charName = state.characters[index].name;
       state.characters.splice(index, 1);
 
-      // Clean up slots if needed
       if (state.selectedFighter1 && state.selectedFighter1.id === id) state.selectedFighter1 = null;
       if (state.selectedFighter2 && state.selectedFighter2.id === id) state.selectedFighter2 = null;
 
@@ -1302,11 +1607,83 @@
       showNotification(`${charName} has been purged from your roster.`, "info");
       renderUI();
 
-      // Trigger asynchronous push to GitHub
       await commitToGitHub();
     };
 
-    // ================= AI SIMULATOR MECHANICS =================
+    window.toggleAdvancedOptions = function() {
+      const panel = document.getElementById('advanced-options-panel');
+      const arrow = document.getElementById('advanced-options-arrow');
+      panel.classList.toggle('hidden');
+      arrow.classList.toggle('rotate-180');
+    };
+
+    // Helper to backoff retry on APIs
+    async function fetchWithRetry(url, options, retries = 3, delay = 1000) {
+      try {
+        const response = await fetch(url, options);
+        if (!response.ok) {
+          if (response.status === 429 && retries > 0) {
+            await new Promise(r => setTimeout(r, delay));
+            return fetchWithRetry(url, options, retries - 1, delay * 2);
+          }
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response;
+      } catch (e) {
+        if (retries > 0) {
+          await new Promise(r => setTimeout(r, delay));
+          return fetchWithRetry(url, options, retries - 1, delay * 2);
+        }
+        throw e;
+      }
+    }
+
+    async function generateBattleScene(winner, loser, winnerVariant, loserVariant, customBattleground = "") {
+      const loadingEl = document.getElementById('battle-scene-loading');
+      const imgEl = document.getElementById('battle-scene-img');
+      loadingEl.classList.remove('hidden');
+      imgEl.classList.add('hidden');
+
+      const variantWinnerStr = winnerVariant ? `(${winnerVariant} variant)` : "";
+      const variantLoserStr = loserVariant ? `(${loserVariant} variant)` : "";
+      const selectedEnv = customBattleground || "thunderous sky backdrop with intense magical storm clouds";
+
+      const prompt = `Cinematic action splash page comic book illustration of ${winner} ${variantWinnerStr} decisively defeating ${loser} ${variantLoserStr} in an epic combat clash. Set in ${selectedEnv}. Dynamic perspective, glowing magical visual energy effects, professional graphic novel art style.`;
+
+      const payload = {
+        instances: { prompt: prompt },
+        parameters: { sampleCount: 1 }
+      };
+
+      try {
+        const apiKey = state.settings.geminiApiKey || "";
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
+        const response = await fetchWithRetry(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+        if (result.predictions && result.predictions.length > 0 && result.predictions[0].bytesBase64Encoded) {
+          const imageUrl = `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
+          imgEl.src = imageUrl;
+          imgEl.classList.remove('hidden');
+          loadingEl.classList.add('hidden');
+          return imageUrl;
+        } else {
+          throw new Error("No image data returned from generator.");
+        }
+      } catch (err) {
+        console.error("AI Combat Scene Generation Failed:", err);
+        imgEl.src = "";
+        imgEl.classList.add('hidden');
+        loadingEl.classList.add('hidden');
+        document.getElementById('battle-scene-fallback').classList.remove('hidden');
+        return "fallback-split";
+      }
+    }
+
+    // ================= AI SIMULATOR ENGINE =================
     window.runBattleSimulation = async function() {
       if (!state.selectedFighter1 || !state.selectedFighter2) {
         showNotification("Please select two fighters before simulating a battle.", "warning");
@@ -1318,7 +1695,6 @@
         return;
       }
 
-      // Open Simulation UI Board
       const simBoard = document.getElementById("simulation-board");
       const loader = document.getElementById("combat-loader");
       const presenter = document.getElementById("fight-presentation");
@@ -1327,15 +1703,18 @@
       loader.classList.remove("hidden");
       presenter.classList.add("hidden");
 
-      // Smooth scroll to simulation arena
       simBoard.scrollIntoView({ behavior: 'smooth' });
 
-      // Determine API Key
+      // Clean active options
+      const customBattleground = document.getElementById("custom-battleground").value.trim();
+      const customRules = document.getElementById("custom-rules").value.trim();
+      const customHandicaps = document.getElementById("custom-handicaps").value.trim();
+      const bypassImageGen = document.getElementById("bypass-image-gen-toggle").checked;
+
       const keyToUse = state.settings.geminiApiKey;
       if (!keyToUse) {
-        // Run fallback generation simulator if no key is entered
         setTimeout(() => {
-          showNotification("No API Key configured. Simulating match with offline tactical parameters.", "info");
+          showNotification("No API Key configured. Simulating match with offline parameters.", "info");
           runMockBattleSimulation();
         }, 1500);
         return;
@@ -1343,16 +1722,17 @@
 
       // Build Prompt payload
       const systemPrompt = `You are the master engine of Nexus VS, a highly analytical, deep-lore combat simulator. Your job is to resolve a fight between two contenders based on their canon abilities, personality flaws, statistics, and lore.
-      You must evaluate the clash objectively. Do not pull punches. Return a perfectly structured JSON document containing exactly 3 logical fight phases (Phase 1: Opening Clash, Phase 2: Tactical Adaptation, Phase 3: Climax), a predicted winner, win probability, and a detailed overall verdict.
+      You must evaluate the clash objectively. Do not pull punches. Take into account any custom location battleground, special combat rules, or handicaps requested.
+      Return a perfectly structured JSON document containing exactly 3 logical fight phases (phase1Setup: opening assessment, phase2MidGame: strategy shift, phase3Climax: decisive ending exchange), a predicted winner, win probability, and a detailed overall verdict.
       
       CRITICAL REQUIREMENT: Output MUST be a valid JSON object matching this schema exactly, do not include any Markdown blocks around the JSON in your response:
       {
-        "phase1": "Detailed narrative of the starting clash, initial strategies and exchange",
-        "phase2": "Detailed narrative of adaptation, shifts in momentum, counters, and tactics",
-        "phase3Climax": "Detailed combat narrative of the final climax, ultimate moves, and the final sequence that decides the match",
+        "phase1Setup": "Detailed narrative of the starting clash, initial strategies and exchange under these rules",
+        "phase2MidGame": "Detailed narrative of adaptation, shifts in momentum, counters, and tactics under these rules",
+        "phase3Climax": "Detailed combat narrative of the final climax, ultimate moves, and the final sequence that decides the match under these rules",
         "predictedWinner": "Name of the exact winning fighter",
         "winProbability": "e.g. 78%",
-        "verdictSummary": "Highly analytical 3-4 sentence summary explaining exactly why the winner won, matching stats, logic, lore mechanics, and tactical advantages."
+        "verdictSummary": "Highly analytical summary explaining exactly why the winner won, matching stats, logic, lore mechanics, and tactical advantages under these rules."
       }`;
 
       const f1 = state.selectedFighter1;
@@ -1374,7 +1754,11 @@
       Bio: ${f2.bio}
       Personality/Tactics: ${f2.personality}
       
-      Evaluate their battle. Keep the tone engaging, precise, realistic to their lore, and highly visual. Remember that breathing styles are physical conditioning, quirks are superpowers, compound V represents biological mutation, etc. Resolve conflicts of power mechanics with flawless logic.`;
+      CUSTOM BATTLEGROUND: ${customBattleground || "Default Arena"}
+      SPECIAL LAWS/RULES: ${customRules || "Standard fight laws apply"}
+      fighter HANDICAPS: ${customHandicaps || "None"}
+
+      Evaluate their battle. Keep the tone engaging, precise, realistic to their lore, and highly visual. Resolve conflicts of power mechanics with flawless logic.`;
 
       const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${keyToUse}`;
       
@@ -1386,34 +1770,29 @@
           responseSchema: {
             type: "OBJECT",
             properties: {
-              phase1: { type: "STRING" },
-              phase2: { type: "STRING" },
+              phase1Setup: { type: "STRING" },
+              phase2MidGame: { type: "STRING" },
               phase3Climax: { type: "STRING" },
               predictedWinner: { type: "STRING" },
               winProbability: { type: "STRING" },
               verdictSummary: { type: "STRING" }
             },
-            required: ["phase1", "phase2", "phase3Climax", "predictedWinner", "winProbability", "verdictSummary"]
+            required: ["phase1Setup", "phase2MidGame", "phase3Climax", "predictedWinner", "winProbability", "verdictSummary"]
           }
         }
       };
 
-      // Call API with exponential backoff up to 3 times
       let attempt = 0;
       let success = false;
       let resultText = "";
 
-      while (attempt < 4 && !success) {
+      while (attempt < 3 && !success) {
         try {
-          const response = await fetch(endpoint, {
+          const response = await fetchWithRetry(endpoint, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
           });
-
-          if (!response.ok) {
-            throw new Error(`HTTP status ${response.status}`);
-          }
 
           const responseData = await response.json();
           resultText = responseData.candidates?.[0]?.content?.parts?.[0]?.text;
@@ -1422,8 +1801,8 @@
           }
         } catch (error) {
           attempt++;
-          if (attempt >= 4) {
-            showNotification(`Gemini API failed after 3 attempts. Reverting to offline simulator.`, "error");
+          if (attempt >= 3) {
+            showNotification(`Gemini API failed. Reverting to offline simulator.`, "error");
             runMockBattleSimulation();
             return;
           }
@@ -1434,30 +1813,41 @@
 
       try {
         const battleData = JSON.parse(resultText);
+
+        // Climax Image Illustration Generation
+        let sceneImgUrl = "fallback-split";
+        if (!bypassImageGen) {
+          sceneImgUrl = await generateBattleScene(f1.name, f2.name, f1.variant, f2.variant, customBattleground);
+        } else {
+          document.getElementById('battle-scene-loading').classList.add('hidden');
+          document.getElementById('battle-scene-fallback').classList.remove('hidden');
+        }
         
-        // Finalize battle record
         const completeBattle = {
           id: `match-${Date.now()}`,
           fighter1Id: f1.id,
           fighter2Id: f2.id,
-          phase1: battleData.phase1,
-          phase2: battleData.phase2,
+          phase1: battleData.phase1Setup,
+          phase2: battleData.phase2MidGame,
           phase3Climax: battleData.phase3Climax,
           predictedWinner: battleData.predictedWinner,
           winProbability: battleData.winProbability,
           verdictSummary: battleData.verdictSummary,
-          timestamp: Date.now()
+          timestamp: Date.now(),
+          battleSceneImgUrl: sceneImgUrl,
+          customBattleground: customBattleground,
+          customRules: customRules,
+          customHandicaps: customHandicaps,
+          dispute: ""
         };
 
         state.battles.push(completeBattle);
         saveStateToLocalStorage();
         
-        // Start playback sequence
         loader.classList.add("hidden");
         presenter.classList.remove("hidden");
         playbackBattle(completeBattle);
 
-        // Commit new battle data asynchronously back to GitHub if credentials exist
         await commitToGitHub();
 
       } catch (parseError) {
@@ -1471,7 +1861,10 @@
       const f1 = state.selectedFighter1;
       const f2 = state.selectedFighter2;
 
-      // Deterministic simulation based on powers array count
+      const customBattleground = document.getElementById("custom-battleground").value.trim();
+      const customRules = document.getElementById("custom-rules").value.trim();
+      const customHandicaps = document.getElementById("custom-handicaps").value.trim();
+
       const powerDiff = (f1.powers ? f1.powers.length : 0) - (f2.powers ? f2.powers.length : 0);
       let winner = f1;
       let loser = f2;
@@ -1484,7 +1877,6 @@
       } else if (powerDiff > 0) {
         probability = `${60 + powerDiff * 5}%`;
       } else {
-        // Random draw
         if (Math.random() > 0.5) {
           winner = f2;
           loser = f1;
@@ -1502,7 +1894,12 @@
         predictedWinner: winner.name,
         winProbability: probability,
         verdictSummary: `${winner.name} secures the battle scenario primarily due to superior capability versatility and tactical alignment. ${loser.name} displayed high competence, but was overwhelmed during the critical third phase threshold.`,
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        battleSceneImgUrl: "fallback-split",
+        customBattleground: customBattleground,
+        customRules: customRules,
+        customHandicaps: customHandicaps,
+        dispute: ""
       };
 
       state.battles.push(generatedMockBattle);
@@ -1510,6 +1907,10 @@
 
       document.getElementById("combat-loader").classList.add("hidden");
       document.getElementById("fight-presentation").classList.remove("hidden");
+
+      // Hide scene loading/show fallback versus splits
+      document.getElementById('battle-scene-loading').classList.add('hidden');
+      document.getElementById('battle-scene-fallback').classList.remove('hidden');
       
       playbackBattle(generatedMockBattle);
       commitToGitHub();
@@ -1517,19 +1918,133 @@
 
     // Interactive Battle Playback Controller
     function playbackBattle(battle) {
-      state.activePlaybackBattle = battle;
-      state.activePlaybackPhase = 1;
+      const f1 = state.characters.find(c => c.id === battle.fighter1Id) || { name: "Challenger Alpha", variant: "Default", powers: [] };
+      const f2 = state.characters.find(c => c.id === battle.fighter2Id) || { name: "Challenger Omega", variant: "Default", powers: [] };
 
       // Set headers
-      const f1 = state.characters.find(c => c.id === battle.fighter1Id) || { name: "Challenger Alpha" };
-      const f2 = state.characters.find(c => c.id === battle.fighter2Id) || { name: "Challenger Omega" };
-
       document.getElementById("header-f1").textContent = f1.name;
       document.getElementById("header-f2").textContent = f2.name;
-      document.getElementById("f1-indicator-name").textContent = f1.name;
-      document.getElementById("f2-indicator-name").textContent = f2.name;
 
-      updatePlaybackUI();
+      // Predicted Winner Box
+      document.getElementById("predicted-winner").textContent = battle.predictedWinner;
+      document.getElementById("win-probability").textContent = battle.winProbability;
+
+      // Portrait comparator portfolios
+      document.getElementById("portfolio-f1-img").src = f1.imageUrl || "";
+      document.getElementById("portfolio-f1-name").textContent = f1.name;
+      document.getElementById("portfolio-f1-media").textContent = f1.mediaSource || "---";
+      document.getElementById("portfolio-f1-variant").textContent = f1.variant || "Default";
+      document.getElementById("portfolio-f1-weight").textContent = f1.weight || "N/A";
+      document.getElementById("portfolio-f1-bio").textContent = f1.bio || "No biography loaded.";
+      document.getElementById("portfolio-f1-mindset").textContent = f1.personality || "Mindset unassigned.";
+
+      const f1PowersContainer = document.getElementById("portfolio-f1-powers");
+      f1PowersContainer.innerHTML = "";
+      if (f1.powers) {
+        f1.powers.forEach(p => {
+          const b = document.createElement("span");
+          b.className = "text-[10px] bg-slate-900 border border-slate-800 text-slate-300 px-2 py-0.5 rounded-md";
+          b.textContent = p;
+          f1PowersContainer.appendChild(b);
+        });
+      }
+
+      document.getElementById("portfolio-f2-img").src = f2.imageUrl || "";
+      document.getElementById("portfolio-f2-name").textContent = f2.name;
+      document.getElementById("portfolio-f2-media").textContent = f2.mediaSource || "---";
+      document.getElementById("portfolio-f2-variant").textContent = f2.variant || "Default";
+      document.getElementById("portfolio-f2-weight").textContent = f2.weight || "N/A";
+      document.getElementById("portfolio-f2-bio").textContent = f2.bio || "No biography loaded.";
+      document.getElementById("portfolio-f2-mindset").textContent = f2.personality || "Mindset unassigned.";
+
+      const f2PowersContainer = document.getElementById("portfolio-f2-powers");
+      f2PowersContainer.innerHTML = "";
+      if (f2.powers) {
+        f2.powers.forEach(p => {
+          const b = document.createElement("span");
+          b.className = "text-[10px] bg-slate-900 border border-slate-800 text-slate-300 px-2 py-0.5 rounded-md";
+          b.textContent = p;
+          f2PowersContainer.appendChild(b);
+        });
+      }
+
+      // Chronology block listed fully
+      document.getElementById("results-phase-1").textContent = battle.phase1;
+      document.getElementById("results-phase-2").textContent = battle.phase2;
+      document.getElementById("results-phase-3").textContent = battle.phase3Climax;
+
+      // Verdict
+      document.getElementById("results-verdict").textContent = battle.verdictSummary;
+
+      // Battle Climax Illustration
+      const imgEl = document.getElementById('battle-scene-img');
+      const fallbackEl = document.getElementById('battle-scene-fallback');
+      const loadingEl = document.getElementById('battle-scene-loading');
+
+      if (battle.battleSceneImgUrl && battle.battleSceneImgUrl !== "fallback-split") {
+        imgEl.src = battle.battleSceneImgUrl;
+        imgEl.classList.remove('hidden');
+        fallbackEl.classList.add('hidden');
+        loadingEl.classList.add('hidden');
+      } else {
+        imgEl.src = "";
+        imgEl.classList.add('hidden');
+        loadingEl.classList.add('hidden');
+        fallbackEl.classList.remove('hidden');
+        document.getElementById('fallback-winner-img').src = f1.name === battle.predictedWinner ? f1.imageUrl : f2.imageUrl;
+        document.getElementById('fallback-winner-name').textContent = f1.name === battle.predictedWinner ? f1.name : f2.name;
+        document.getElementById('fallback-loser-img').src = f1.name !== battle.predictedWinner ? f1.imageUrl : f2.imageUrl;
+        document.getElementById('fallback-loser-name').textContent = f1.name !== battle.predictedWinner ? f1.name : f2.name;
+      }
+
+      // Active conditions visibility checks
+      const condContainer = document.getElementById('active-conditions-container');
+      const condBgBox = document.getElementById('active-bg-box');
+      const condRulesBox = document.getElementById('active-rules-box');
+      const condHandicapsBox = document.getElementById('active-handicaps-box');
+
+      if (battle.customBattleground || battle.customRules || battle.customHandicaps) {
+        condContainer.classList.remove('hidden');
+        
+        if (battle.customBattleground) {
+          condBgBox.classList.remove('hidden');
+          document.getElementById('active-battleground-val').textContent = battle.customBattleground;
+        } else {
+          condBgBox.classList.add('hidden');
+        }
+
+        if (battle.customRules) {
+          condRulesBox.classList.remove('hidden');
+          document.getElementById('active-rules-val').textContent = battle.customRules;
+        } else {
+          condRulesBox.classList.add('hidden');
+        }
+
+        if (battle.customHandicaps) {
+          condHandicapsBox.classList.remove('hidden');
+          document.getElementById('active-handicaps-val').textContent = battle.customHandicaps;
+        } else {
+          condHandicapsBox.classList.add('hidden');
+        }
+      } else {
+        condContainer.classList.add('hidden');
+      }
+
+      // Re-Arbitration record layout checks
+      const dispBox = document.getElementById('dispute-display-box');
+      if (battle.dispute) {
+        dispBox.classList.remove('hidden');
+        document.getElementById('dispute-display-text').textContent = battle.dispute;
+        document.getElementById('dispute-response-text').textContent = battle.disputeResponse || "Decision stands following re-arbitration audit.";
+        
+        if (battle.disputeOverride) {
+          document.getElementById('dispute-override-badge').classList.remove('hidden');
+        } else {
+          document.getElementById('dispute-override-badge').classList.add('hidden');
+        }
+      } else {
+        dispBox.classList.add('hidden');
+      }
     }
 
     window.playbackSavedBattle = function(battleId) {
@@ -1549,99 +2064,120 @@
       }
     };
 
-    window.changePlaybackPhase = function(direction) {
-      if (!state.activePlaybackBattle) return;
-      
-      const targetPhase = state.activePlaybackPhase + direction;
-      if (targetPhase >= 1 && targetPhase <= 3) {
-        state.activePlaybackPhase = targetPhase;
-        updatePlaybackUI();
+    window.resetArena = function() {
+      document.getElementById("simulation-board").classList.add("hidden");
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    window.openDisputeModal = function() {
+      document.getElementById("dispute-input-text").value = "";
+      document.getElementById("modal-dispute").classList.remove("hidden");
+    };
+
+    window.closeDisputeModal = function() {
+      document.getElementById("modal-dispute").classList.add("hidden");
+    };
+
+    window.submitLoreDispute = async function() {
+      const argument = document.getElementById("dispute-input-text").value.trim();
+      if (!argument) {
+        showNotification("Please provide a dispute argument.", "warning");
+        return;
+      }
+
+      // Find active battle record
+      const activeBattle = state.battles[state.battles.length - 1];
+      if (!activeBattle) return;
+
+      closeDisputeModal();
+      showNotification("Submitting dispute for Lore Arbitration...", "info");
+
+      const keyToUse = state.settings.geminiApiKey;
+      if (!keyToUse) {
+        setTimeout(() => {
+          activeBattle.dispute = argument;
+          activeBattle.disputeResponse = "Arbitration stands. Re-evaluation audited and determined original victor holds mechanical advantage.";
+          activeBattle.disputeOverride = false;
+          playbackBattle(activeBattle);
+          showNotification("Arbitration review resolved offline.", "success");
+        }, 1500);
+        return;
+      }
+
+      const systemPrompt = `You are the Grand Arbiter of the Multiverse Lore Counsel. You review disputes between fighters. Evaluate user's logic objectively.
+      You can choose to stand by the original winner or reverse the outcome.
+      Return JSON only:
+      {
+        "outcomeOverride": true/false,
+        "arbitrationResponse": "Detailed logical explanation of why the original outcome stands or is reversed",
+        "newPredictedWinner": "Standardized name of winner",
+        "newWinProbability": "win %"
+      }`;
+
+      const userPrompt = `Fighter 1: ${activeBattle.fighter1Id}
+      Fighter 2: ${activeBattle.fighter2Id}
+      Original Winner: ${activeBattle.predictedWinner} (Win Probability: ${activeBattle.winProbability})
+      User's Dispute: "${argument}"
+
+      Customizations present during fight:
+      Battleground: ${activeBattle.customBattleground || "Standard"}
+      Rules: ${activeBattle.customRules || "Standard"}
+      Handicaps: ${activeBattle.customHandicaps || "None"}`;
+
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${keyToUse}`;
+      const payload = {
+        contents: [{ parts: [{ text: userPrompt }] }],
+        systemInstruction: { parts: [{ text: systemPrompt }] },
+        generationConfig: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: "OBJECT",
+            properties: {
+              outcomeOverride: { type: "BOOLEAN" },
+              arbitrationResponse: { type: "STRING" },
+              newPredictedWinner: { type: "STRING" },
+              newWinProbability: { type: "STRING" }
+            },
+            required: ["outcomeOverride", "arbitrationResponse", "newPredictedWinner", "newWinProbability"]
+          }
+        }
+      };
+
+      try {
+        const response = await fetchWithRetry(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+        const resObj = JSON.parse(data.candidates?.[0]?.content?.parts?.[0]?.text);
+
+        activeBattle.dispute = argument;
+        activeBattle.disputeResponse = resObj.arbitrationResponse;
+        activeBattle.disputeOverride = resObj.outcomeOverride;
+
+        if (resObj.outcomeOverride) {
+          activeBattle.predictedWinner = resObj.newPredictedWinner;
+          activeBattle.winProbability = resObj.newWinProbability;
+          showNotification(`Dispute accepted! Outcome reversed.`, "success");
+        } else {
+          showNotification(`Lore Audit resolved: Decision stands.`, "info");
+        }
+
+        saveStateToLocalStorage();
+        playbackBattle(activeBattle);
+        await commitToGitHub();
+
+      } catch (err) {
+        console.error("Dispute failed:", err);
+        showNotification("lore Arbitration crashed.", "error");
       }
     };
 
-    function updatePlaybackUI() {
-      const battle = state.activePlaybackBattle;
-      const phase = state.activePlaybackPhase;
-
-      const badge = document.getElementById("phase-badge");
-      const title = document.getElementById("phase-title");
-      const subtitle = document.getElementById("phase-subtitle");
-      const body = document.getElementById("phase-body");
-      const sfx = document.getElementById("battle-sfx-text");
-
-      const f1Bar = document.getElementById("f1-health-bar");
-      const f2Bar = document.getElementById("f2-health-bar");
-      const f1Ind = document.getElementById("f1-indicator-health");
-      const f2Ind = document.getElementById("f2-indicator-health");
-
-      // Dynamic styling values for battle visualization
-      if (phase === 1) {
-        badge.textContent = "Phase 1";
-        title.textContent = "Opening Clash";
-        subtitle.textContent = "Initial tactical assessment and early maneuvers";
-        body.textContent = battle.phase1;
-        sfx.textContent = "CRASH! BOOM!";
-        
-        f1Bar.style.width = "95%";
-        f2Bar.style.width = "95%";
-        f1Ind.textContent = "95%";
-        f2Ind.textContent = "95%";
-        
-        document.getElementById("verdict-wrapper").classList.add("hidden");
-      } else if (phase === 2) {
-        badge.textContent = "Phase 2";
-        title.textContent = "Tactical Shift";
-        subtitle.textContent = "Strategic counters, environment adjustments, and adaptation";
-        body.textContent = battle.phase2;
-        sfx.textContent = "CLASH! WHOOSH!";
-        
-        f1Bar.style.width = "70%";
-        f2Bar.style.width = "65%";
-        f1Ind.textContent = "70%";
-        f2Ind.textContent = "65%";
-        
-        document.getElementById("verdict-wrapper").classList.add("hidden");
-      } else if (phase === 3) {
-        badge.textContent = "Phase 3";
-        title.textContent = "The Climax";
-        subtitle.textContent = "Final sequence, limit-breaking plays, and match resolution";
-        body.textContent = battle.phase3Climax;
-        sfx.textContent = "KABOOM! FINISH!";
-
-        // Finalize health visual status based on actual winner
-        const f1 = state.characters.find(c => c.id === battle.fighter1Id) || { name: "" };
-        const isF1Winner = f1.name === battle.predictedWinner;
-
-        if (isF1Winner) {
-          f1Bar.style.width = "45%";
-          f2Bar.style.width = "0%";
-          f1Ind.textContent = "45% (WINNER)";
-          f2Ind.textContent = "0% (K.O.)";
-        } else {
-          f1Bar.style.width = "0%";
-          f2Bar.style.width = "45%";
-          f1Ind.textContent = "0% (K.O.)";
-          f2Ind.textContent = "45% (WINNER)";
-        }
-
-        // Show final decision details
-        document.getElementById("sidebar-winner").textContent = battle.predictedWinner;
-        document.getElementById("sidebar-prob").textContent = battle.winProbability;
-        document.getElementById("verdict-summary").textContent = battle.verdictSummary;
-
-        document.getElementById("verdict-wrapper").classList.remove("hidden");
-      }
-
-      // Playback Indicators status updating
-      document.getElementById("playback-indicator").textContent = `Phase ${phase} / 3`;
-      document.getElementById("playback-prev").disabled = (phase === 1);
-      document.getElementById("playback-next").disabled = (phase === 3);
-    }
-
-    window.resetArena = function() {
-      document.getElementById("simulation-board").classList.add("hidden");
-      state.activePlaybackBattle = null;
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.triggerRematch = function() {
+      showNotification("Triggering rematch simulation...", "info");
+      runBattleSimulation();
     };
 
     // System Notifications UI
@@ -1675,12 +2211,10 @@
       toast.className += ` ${borderStyle}`;
       container.appendChild(toast);
 
-      // Trigger enter transition
       setTimeout(() => {
         toast.classList.remove("translate-y-2", "opacity-0");
       }, 50);
 
-      // Dismiss automatically
       setTimeout(() => {
         toast.classList.add("opacity-0", "translate-y-2");
         setTimeout(() => toast.remove(), 300);
