@@ -16,11 +16,6 @@
   <!-- FontAwesome Icons for premium aesthetics -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-  <!-- Firebase Compat SDK CDNs (Classic integration to prevent Unexpected Reserved Word crashes) -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-
   <style>
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
@@ -96,6 +91,10 @@
         </button>
         
         <div class="h-6 w-px bg-slate-850 hidden md:block"></div>
+
+        <button onclick="openSettingsModal()" class="flex items-center justify-center w-8 h-8 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-400 hover:text-slate-200 transition" title="Settings">
+          <i class="fa-solid fa-gear"></i>
+        </button>
 
         <span id="db-status" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
           <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-amber-400 animate-pulse"></span>
@@ -1462,6 +1461,39 @@
     </div>
   </div>
 
+  <!-- SETTINGS MODAL -->
+  <div id="settings-modal" onclick="closeSettingsModal()" class="hidden fixed inset-0 z-[150] flex items-center justify-center px-4 bg-slate-950/85 backdrop-blur-sm">
+    <div onclick="event.stopPropagation()" class="bg-slate-900 border border-slate-800 rounded-xl p-6 max-w-md w-full shadow-2xl relative">
+      <button onclick="closeSettingsModal()" class="absolute top-4 right-4 text-slate-500 hover:text-slate-300">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div class="flex items-center space-x-3 mb-4">
+        <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400">
+          <i class="fa-solid fa-gear text-lg"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-slate-200 text-lg">Application Settings</h3>
+          <p class="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">Gemini API Configuration</p>
+        </div>
+      </div>
+      <p class="text-xs text-slate-400 leading-relaxed mb-4">
+        To enable AI-powered features like character scouting and battle simulation, please provide your Google Gemini API key. Your key is saved securely in your browser's local storage and is never shared.
+      </p>
+      <div class="space-y-2 mb-4">
+        <label class="block text-[10px] text-slate-400 uppercase tracking-wider font-bold">Your Gemini API Key</label>
+        <input type="password" id="api-key-input" placeholder="Enter your API key here" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-purple-500">
+      </div>
+      <div class="flex flex-col sm:flex-row gap-2 items-center justify-between">
+        <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-xs text-blue-400 hover:text-blue-300 font-semibold flex items-center gap-1.5">
+          <i class="fa-solid fa-key"></i> Get your API Key from Google AI Studio
+        </a>
+        <button onclick="saveApiKey()" class="w-full sm:w-auto px-5 py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-lg text-xs transition shadow">
+          Save Key
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- DATABASE ACTION DASHBOARD & BACKUP HUB -->
   <footer class="border-t border-slate-800 bg-slate-900/60 py-6 mt-12 backdrop-blur-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
@@ -1815,8 +1847,7 @@
     };
 
     const appId = typeof __app_id !== 'undefined' ? __app_id : (window.__app_id || 'multiverse-battle-laboratory');
-    const apiKey = ""; // Leave as empty string, Canvas will automatically populate this at runtime
-    let firebaseConfig = null;
+    let apiKey = "";
     let auth = null;
     let db = null;
     let currentUser = null;
@@ -1825,16 +1856,6 @@
 
     // Safely parse the injected environment configuration variables
     try {
-      const rawConfig = typeof __firebase_config !== 'undefined' ? __firebase_config : (window.__firebase_config || null);
-      if (rawConfig) {
-        firebaseConfig = typeof rawConfig === 'string' ? JSON.parse(rawConfig) : rawConfig;
-      }
-    } catch (e) {
-      console.error("Error parsing injected __firebase_config:", e);
-    }
-
-    // Prepopulate cloud database if it starts completely empty (RULE 3 guard)
-    async function checkAndPreloadCloudRoster() {
       if (!db || !currentUser) return;
       try {
         const charsRef = db.collection('artifacts').doc(appId).collection('public').doc('data').collection('characters');
@@ -1925,42 +1946,20 @@
     }
 
     function startApp() {
-      // Try to initialize Firebase securely if credentials are set
-      try {
-        if (typeof firebase !== 'undefined' && firebaseConfig && firebaseConfig.apiKey) {
-          firebase.initializeApp(firebaseConfig);
-          db = firebase.firestore();
-          auth = firebase.auth();
-          
-          // RULE 3: Custom token priority, fallback to anonymous
-          const token = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : (window.__initial_auth_token || null);
-          let signInPromise;
-          if (token) {
-            signInPromise = auth.signInWithCustomToken(token);
-          } else {
-            signInPromise = auth.signInAnonymously();
-          }
+      apiKey = localStorage.getItem('gemini_api_key');
 
-          signInPromise.then(userCredential => {
-            currentUser = auth.currentUser || userCredential.user || userCredential;
-            document.getElementById('db-status').className = "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
-            document.getElementById('db-status').innerHTML = '<span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-emerald-400 animate-pulse"></span>Cloud Storage Active';
-            
-            // Wait for preloading cloud data to complete before starting snapshot listeners
-            checkAndPreloadCloudRoster().then(() => {
-              setupDatabaseListeners();
-            });
-          }).catch(err => {
-            console.warn("Auth failed, falling back to local storage sandbox:", err);
-            fallbackToLocalMode();
-          });
-        } else {
-          console.warn("No firebaseConfig or firebase SDK detected. Reverting to sandbox fallback.");
-          fallbackToLocalMode();
-        }
-      } catch (e) {
-        console.warn("Firebase initialization failed, falling back to local storage sandbox:", e);
+      if (apiKey) {
+        document.getElementById('db-status').className = "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+        document.getElementById('db-status').innerHTML = '<span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-emerald-400 animate-pulse"></span>AI Core Active';
+        // Since we are not using a persistent cloud DB anymore in this version,
+        // we will just use the local storage engine.
         fallbackToLocalMode();
+      } else {
+        fallbackToLocalMode();
+        // Update status to indicate the need for an API key for AI features.
+        document.getElementById('db-status').className = "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20";
+        document.getElementById('db-status').innerHTML = '<span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-amber-400 animate-pulse"></span>API Key Needed';
+        openModal("API Key Required", "Welcome to the Battle Lab! To use AI features like character scouting and battle simulation, please add your Gemini API key in the settings.", "fa-solid fa-key text-amber-400");
       }
       loadOptionsState();
     }
@@ -3799,7 +3798,7 @@ You must return a valid JSON object matching this structure:
               imageConfig: { aspectRatio: "16:9" }
             }
           };
-
+          
           const response = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-image-preview:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -3858,7 +3857,6 @@ You must return a valid JSON object matching this structure:
       };
 
       try {
-        const apiKey = "";
         const response = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -5299,7 +5297,6 @@ Output MUST match this strict JSON structure:
       openModal("Multiverse Roster Scout active...", `AI is researching and building profile files for ${scoutName}...`, "fa-solid fa-satellite-dish animate-pulse text-purple-400");
 
       try {
-        const apiKey = "";
         const systemPrompt = `You are a multiverse character archiver. Gather comprehensive background details on the specified character variant and output them in valid JSON. You MUST use google search to get accurate real-world data and find a working, direct, hotlinkable image URL for this character's portrait.
 
 CRITICAL PORTRAIT URL RULES:
@@ -5796,6 +5793,24 @@ Output MUST match this strict JSON structure:
 
     function closeConfirmModal() {
       document.getElementById('confirm-modal').classList.add('hidden');
+    }
+
+    function openSettingsModal() {
+      document.getElementById('api-key-input').value = localStorage.getItem('gemini_api_key') || '';
+      document.getElementById('settings-modal').classList.remove('hidden');
+    }
+
+    function closeSettingsModal() {
+      document.getElementById('settings-modal').classList.add('hidden');
+    }
+
+    function saveApiKey() {
+      const key = document.getElementById('api-key-input').value.trim();
+      localStorage.setItem('gemini_api_key', key);
+      apiKey = key;
+      closeSettingsModal();
+      openModal("API Key Saved", "Your Gemini API key has been saved to local storage. AI features are now active.", "fa-solid fa-circle-check text-emerald-400");
+      startApp(); // Re-initialize app to update status
     }
 
     async function fetchWithRetry(url, options, retries = 5, delay = 1000) {
