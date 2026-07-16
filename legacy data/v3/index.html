@@ -1463,87 +1463,33 @@
 
   <!-- SETTINGS MODAL -->
   <div id="settings-modal" onclick="closeSettingsModal()" class="hidden fixed inset-0 z-[150] flex items-center justify-center px-4 bg-slate-950/85 backdrop-blur-sm">
-    <div onclick="event.stopPropagation()" class="bg-slate-900 border border-slate-800 rounded-xl p-6 max-w-2xl w-full shadow-2xl relative max-h-[90vh] overflow-y-auto">
+    <div onclick="event.stopPropagation()" class="bg-slate-900 border border-slate-800 rounded-xl p-6 max-w-md w-full shadow-2xl relative">
       <button onclick="closeSettingsModal()" class="absolute top-4 right-4 text-slate-500 hover:text-slate-300">
         <i class="fa-solid fa-xmark"></i>
       </button>
-
-      <div class="flex items-center space-x-3 mb-6">
+      <div class="flex items-center space-x-3 mb-4">
         <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400">
-          <i class="fa-solid fa-brain text-lg"></i>
+          <i class="fa-solid fa-gear text-lg"></i>
         </div>
         <div>
-          <h3 class="font-bold text-slate-200 text-lg">AI Engine Configuration</h3>
-          <p class="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">Choose your provider and model</p>
+          <h3 class="font-bold text-slate-200 text-lg">Application Settings</h3>
+          <p class="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">Gemini API Configuration</p>
         </div>
       </div>
-
-      <div class="space-y-5">
-        <div>
-          <label class="block text-[10px] text-slate-400 uppercase tracking-wider font-bold mb-2">AI Provider</label>
-          <select id="ai-provider" onchange="populateModelList()" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-200">
-            <option value="openrouter">OpenRouter (Recommended)</option>
-            <option value="openai">OpenAI</option>
-            <option value="anthropic">Anthropic</option>
-            <option value="google">Google Gemini</option>
-            <option value="ollama">Ollama (Local)</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-[10px] text-slate-400 uppercase tracking-wider font-bold mb-2">Model</label>
-          <select id="ai-model" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-200"></select>
-        </div>
-
-        <div>
-          <label class="block text-[10px] text-slate-400 uppercase tracking-wider font-bold mb-2">API Key</label>
-          <input type="password" id="api-key-input" placeholder="Enter your API key" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-200">
-          <p class="text-[11px] text-slate-500 mt-2">For Ollama, the API key is ignored. Default URL: http://localhost:11434</p>
-        </div>
-
-        <div>
-          <label class="block text-[10px] text-slate-400 uppercase tracking-wider font-bold mb-2">Ollama Server URL</label>
-          <input type="text" id="ollama-url" value="http://localhost:11434" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-200">
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-[10px] text-slate-400 uppercase tracking-wider font-bold mb-2">Reasoning Level</label>
-            <select id="ai-reasoning" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-200">
-              <option value="fast">Fast</option>
-              <option value="balanced" selected>Balanced</option>
-              <option value="deep">Deep Analysis</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block text-[10px] text-slate-400 uppercase tracking-wider font-bold mb-2">Temperature</label>
-            <input type="number" id="ai-temperature" value="0.7" min="0" max="2" step="0.1" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-200">
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-[10px] text-slate-400 uppercase tracking-wider font-bold mb-2">System Prompt Override</label>
-          <textarea id="ai-system-prompt" rows="3" placeholder="Optional custom system instructions..." class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-200"></textarea>
-        </div>
-
-        <div class="flex flex-col sm:flex-row gap-2 justify-between items-center pt-2 border-t border-slate-800">
-          <div class="flex flex-wrap gap-2 text-xs">
-            <a href="https://openrouter.ai/keys" target="_blank" class="text-blue-400 hover:text-blue-300 font-semibold">OpenRouter Keys</a>
-            <a href="https://platform.openai.com/api-keys" target="_blank" class="text-blue-400 hover:text-blue-300 font-semibold">OpenAI Keys</a>
-            <a href="https://console.anthropic.com/" target="_blank" class="text-blue-400 hover:text-blue-300 font-semibold">Anthropic Keys</a>
-            <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-blue-400 hover:text-blue-300 font-semibold">Gemini Keys</a>
-          </div>
-
-          <div class="flex gap-2 w-full sm:w-auto">
-            <button onclick="testAIConnection()" class="flex-1 sm:flex-none px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-lg text-xs transition">
-              Test Connection
-            </button>
-            <button onclick="saveAISettings()" class="flex-1 sm:flex-none px-5 py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-lg text-xs transition shadow">
-              Save Settings
-            </button>
-          </div>
-        </div>
+      <p class="text-xs text-slate-400 leading-relaxed mb-4">
+        To enable AI-powered features like character scouting and battle simulation, please provide your Google Gemini API key. Your key is saved securely in your browser's local storage and is never shared.
+      </p>
+      <div class="space-y-2 mb-4">
+        <label class="block text-[10px] text-slate-400 uppercase tracking-wider font-bold">Your Gemini API Key</label>
+        <input type="password" id="api-key-input" placeholder="Enter your API key here" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-purple-500">
+      </div>
+      <div class="flex flex-col sm:flex-row gap-2 items-center justify-between">
+        <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-xs text-blue-400 hover:text-blue-300 font-semibold flex items-center gap-1.5">
+          <i class="fa-solid fa-key"></i> Get your API Key from Google AI Studio
+        </a>
+        <button onclick="saveApiKey()" class="w-full sm:w-auto px-5 py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-lg text-xs transition shadow">
+          Save Key
+        </button>
       </div>
     </div>
   </div>
@@ -2687,7 +2633,24 @@ Output valid JSON matching this schema:
   }
 }`;
 
-        const battleResult = await generateAIJson(userPrompt, systemPrompt);
+        const payload = {
+          contents: [{ parts: [{ text: userPrompt }] }],
+          tools: [{ "google_search": {} }],
+          systemInstruction: { parts: [{ text: systemPrompt }] },
+          generationConfig: { responseMimeType: "application/json" }
+        };
+
+        const response = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+        const jsonText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!jsonText) throw new Error("Empty simulation block response.");
+
+        const battleResult = JSON.parse(jsonText);
         
         displayMatchDetails(battleResult);
 
@@ -5743,121 +5706,25 @@ Output MUST match this strict JSON structure:
       document.getElementById('confirm-modal').classList.add('hidden');
     }
 
-    
-
-    
-    // ===== Multi-Provider AI Service =====
-    const AI_MODELS = {
-      openrouter: ['openai/gpt-5','openai/gpt-5-mini','anthropic/claude-sonnet-4','google/gemini-2.5-pro'],
-      openai: ['gpt-5','gpt-5-mini','gpt-4.1'],
-      anthropic: ['claude-sonnet-4-20250514','claude-opus-4-20250514'],
-      google: ['gemini-2.5-pro','gemini-2.5-flash'],
-      ollama: ['llama3.1','qwen3','deepseek-r1']
-    };
-
-    function populateModelList(){
-      const provider = document.getElementById('ai-provider').value;
-      const sel = document.getElementById('ai-model');
-      sel.innerHTML = '';
-      (AI_MODELS[provider] || []).forEach(m=>{
-        const o=document.createElement('option');
-        o.value=m; o.textContent=m; sel.appendChild(o);
-      });
-      const saved = localStorage.getItem('battle_lab_ai_model');
-      if(saved && [...sel.options].some(x=>x.value===saved)) sel.value=saved;
-    }
-
     function openSettingsModal() {
-      document.getElementById('ai-provider').value = localStorage.getItem('battle_lab_ai_provider') || 'openrouter';
-      populateModelList();
-      document.getElementById('api-key-input').value = localStorage.getItem('battle_lab_ai_key') || '';
-      document.getElementById('ollama-url').value = localStorage.getItem('battle_lab_ollama_url') || 'http://localhost:11434';
-      document.getElementById('ai-reasoning').value = localStorage.getItem('battle_lab_ai_reasoning') || 'balanced';
-      document.getElementById('ai-temperature').value = localStorage.getItem('battle_lab_ai_temperature') || '0.7';
-      document.getElementById('ai-system-prompt').value = localStorage.getItem('battle_lab_ai_system') || '';
+      document.getElementById('api-key-input').value = localStorage.getItem('gemini_api_key') || '';
       document.getElementById('settings-modal').classList.remove('hidden');
     }
 
-    function saveAISettings() {
-      localStorage.setItem('battle_lab_ai_provider', document.getElementById('ai-provider').value);
-      localStorage.setItem('battle_lab_ai_model', document.getElementById('ai-model').value);
-      localStorage.setItem('battle_lab_ai_key', document.getElementById('api-key-input').value.trim());
-      localStorage.setItem('battle_lab_ollama_url', document.getElementById('ollama-url').value.trim());
-      localStorage.setItem('battle_lab_ai_reasoning', document.getElementById('ai-reasoning').value);
-      localStorage.setItem('battle_lab_ai_temperature', document.getElementById('ai-temperature').value);
-      localStorage.setItem('battle_lab_ai_system', document.getElementById('ai-system-prompt').value);
-      apiKey = localStorage.getItem('battle_lab_ai_key') || '';
+    function closeSettingsModal() {
+      document.getElementById('settings-modal').classList.add('hidden');
+    }
+
+    function saveApiKey() {
+      const key = document.getElementById('api-key-input').value.trim();
+      localStorage.setItem('gemini_api_key', key);
+      apiKey = key;
       closeSettingsModal();
-      openModal('Settings Saved','Your AI provider settings have been saved.','fa-solid fa-circle-check text-emerald-400');
+      openModal("API Key Saved", "Your Gemini API key has been saved to local storage. AI features are now active.", "fa-solid fa-circle-check text-emerald-400");
+      startApp(); // Re-initialize app to update status
     }
 
-    async function testAIConnection(){
-      try{
-        await generateAIJson('Return only {"ok":true}', 'You are a test.');
-        openModal('Connection Successful','The selected AI provider responded successfully.','fa-solid fa-circle-check text-emerald-400');
-      }catch(err){
-        openModal('Connection Failed', err.message, 'fa-solid fa-triangle-exclamation text-amber-400');
-      }
-    }
-
-    async function generateAIJson(userPrompt, systemPrompt){
-      const provider = localStorage.getItem('battle_lab_ai_provider') || 'openrouter';
-      const model = localStorage.getItem('battle_lab_ai_model') || AI_MODELS[provider][0];
-      const key = localStorage.getItem('battle_lab_ai_key') || '';
-      const temp = parseFloat(localStorage.getItem('battle_lab_ai_temperature') || '0.7');
-      const custom = localStorage.getItem('battle_lab_ai_system') || '';
-      const finalSystem = custom ? (systemPrompt + "\n\n" + custom) : systemPrompt;
-
-      if(provider === 'google'){
-        const payload = {
-          contents:[{parts:[{text:userPrompt}]}],
-          systemInstruction:{parts:[{text:finalSystem}]},
-          generationConfig:{responseMimeType:'application/json',temperature:temp}
-        };
-        const r = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,{
-          method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)
-        });
-        const d = await r.json();
-        return JSON.parse(d.candidates?.[0]?.content?.parts?.[0]?.text || '{}');
-      }
-
-      if(provider === 'ollama'){
-        const base = localStorage.getItem('battle_lab_ollama_url') || 'http://localhost:11434';
-        const r = await fetchWithRetry(`${base}/api/chat`,{
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({model,stream:false,messages:[{role:'system',content:finalSystem},{role:'user',content:userPrompt}]})
-        });
-        const d = await r.json();
-        return JSON.parse(d.message?.content || '{}');
-      }
-
-      // OpenAI-compatible APIs (OpenRouter and OpenAI)
-      const url = provider === 'openai'
-        ? 'https://api.openai.com/v1/chat/completions'
-        : 'https://openrouter.ai/api/v1/chat/completions';
-
-      const headers = {'Content-Type':'application/json','Authorization':'Bearer '+key};
-      if(provider === 'openrouter'){
-        headers['HTTP-Referer'] = window.location.origin;
-        headers['X-Title'] = 'Battle Lab';
-      }
-
-      const r = await fetchWithRetry(url,{
-        method:'POST',
-        headers,
-        body:JSON.stringify({
-          model,
-          temperature:temp,
-          response_format:{type:'json_object'},
-          messages:[{role:'system',content:finalSystem},{role:'user',content:userPrompt}]
-        })
-      });
-      const d = await r.json();
-      return JSON.parse(d.choices?.[0]?.message?.content || '{}');
-    }
-
-async function fetchWithRetry(url, options, retries = 5, delay = 1000) {
+    async function fetchWithRetry(url, options, retries = 5, delay = 1000) {
       try {
         const response = await fetch(url, options);
         if (!response.ok) {
